@@ -1,6 +1,9 @@
 import json
 import re
 
+from retask import Task
+from retask import Queue
+
 import falcon
 
 
@@ -15,10 +18,8 @@ class BSEResource(object):
         resp.content_type = 'text/html'
         with open('./templates/base.html', 'r') as f:
             html_template = f.read()
-        f.closed
         with open('./static/js/bse.js', 'r') as f:
             js_script = f.read()
-        f.closed
         html_template = html_template.replace("<script></script>", "<script>" + js_script + "</script>")
         resp.body = html_template
 
@@ -27,7 +28,7 @@ class BSEResource(object):
         try:
             raw_json = req.stream.read().decode("utf-8")
         except Exception as ex:
-            raise falcon.HTTPError(falcon.HTTP_400, 'Error', ex.message)
+            raise falcon.HTTPError(falcon.HTTP_400, 'Error', ex.args)
 
         try:
             result_json = json.loads(raw_json, encoding='utf-8')
@@ -37,12 +38,14 @@ class BSEResource(object):
                                    'Could not decode the request body. The '
                                    'JSON was incorrect.')
 
+        # inner request object
         reqo = {}
         for item in result_json:
             reqo[item['name']] = item['value']
 
         email = reqo['email']
 
+        # inner response object
         reso = {}
         if not validate_email(email):
             reso['is_e'] = True
@@ -52,8 +55,25 @@ class BSEResource(object):
             reso['username'] = extract_username(email)
             reso['email'] = email
 
+            enqueue_task(reqo)
+
         resp.body = json.dumps(reso)
         resp.status = falcon.HTTP_200
+
+
+def enqueue_task(task_data):
+
+    config = {
+        'host': '192.168.0.29',
+        'port': 6379,
+        'db': 0,
+        'password': None,
+    }
+
+    queue = Queue('search', config=config)
+    queue.connect()
+    task = Task(task_data)
+    queue.enqueue(task)
 
 
 def validate_email(email):
