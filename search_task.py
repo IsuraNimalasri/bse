@@ -27,7 +27,7 @@ def format_result(result):
             with tag('p'):
                 text('Here are your results:')
 
-            with tag('ul'):
+            with tag('ul', style='list-style-type:none;'):
                 for hit in result['hits']['hits']:
                     with tag('li'):
                         with tag('h2'):
