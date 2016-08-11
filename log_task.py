@@ -8,6 +8,7 @@ from configs import (TASK_QUEUE_CONNECTION, TASK_QUEUE_LOG,
 
 def log_task(task_data):
     logging.basicConfig(filename=LOG_FILENAME, format=LOG_FORMAT, level=logging.INFO)
+
     msg = 'email:' + task_data['email'] + '; '\
         + 'q:' + task_data['q'] + '; '\
         + 'took:' + str(task_data['took'])
@@ -29,10 +30,10 @@ if __name__ == '__main__':
     get_task()
 
     # log_task("asd asd")
-
-    log_task_data = {
-        'q': 'falcon',
-        'email': 'a@b.com',
-        'took': 234
-    }
-    log_task(log_task_data)
+    #
+    # log_task_data = {
+    #     'q': 'falcon',
+    #     'email': 'a@b.com',
+    #     'took': 234
+    # }
+    # log_task(log_task_data)

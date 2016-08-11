@@ -11,8 +11,9 @@ from retask import Queue
 from yattag import Doc
 
 from es import search
-from configs import (TASK_QUEUE_CONNECTION, TASK_QUEUE_SEARCH, TASK_QUEUE_LOG, ELASTICSEARCH_HOSTS,
-                      EMAIL_LOGIN, EMAIL_PASS, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT)
+from configs import (TASK_QUEUE_CONNECTION, TASK_QUEUE_SEARCH, TASK_QUEUE_LOG,
+                     ELASTICSEARCH_HOSTS, ELASTICSEARCH_TIMEOUT,
+                     EMAIL_LOGIN, EMAIL_PASS, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT)
 
 
 def format_result(result):
@@ -33,7 +34,7 @@ def format_result(result):
                             if 'fields' in hit and 'file.title' in hit['fields'] and hit['fields']['file.title'][0]:
                                 text(hit['fields']['file.title'][0])
                             else:
-                                text('<not_set>')
+                                text(hit['fields']['file.name'][0])
                         with tag('ol'):
                             for r in hit['highlight']['file.content']:
                                 with tag('li'):
@@ -96,7 +97,7 @@ def log_results(results, task_data):
 
 def get_task():
 
-    es = Elasticsearch(ELASTICSEARCH_HOSTS)
+    es = Elasticsearch(ELASTICSEARCH_HOSTS, timeout=ELASTICSEARCH_TIMEOUT)
 
     queue = Queue(TASK_QUEUE_SEARCH, config=TASK_QUEUE_CONNECTION)
     queue.connect()
@@ -112,7 +113,7 @@ def get_task():
 if __name__ == '__main__':
     get_task()
 
-    # es_ = Elasticsearch(ELASTICSEARCH_HOSTS)
+    # es_ = Elasticsearch(ELASTICSEARCH_HOSTS, timeout=ELASTICSEARCH_TIMEOUT)
     # task_ = {
     #     'q': 'sql',
     #     'email': 'sasha.pazuyk@gmail.com'

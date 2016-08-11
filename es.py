@@ -2,7 +2,7 @@ import base64
 import mimetypes
 
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, basename
 
 from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_INDEX, ELASTICSEARCH_DOC_TYPE)
 
@@ -17,14 +17,15 @@ def create_index(es):
                 "file": {
                     "type": "attachment",
                     "fields": {
-                        "content": {"store": "yes"},
-                        "title": {"store": "yes"},
                         "date": {"store": "yes"},
+                        "title": {"store": "yes"},
+                        "name": {"store": "yes"},
                         "author": {"store": "yes"},
                         "keywords": {"store": "yes"},
                         "content_type": {"store": "yes"},
                         "content_length": {"store": "yes"},
-                        "language": {"store": "yes"}
+                        "language": {"store": "yes"},
+                        "content": {"store": "yes"}
                     }
                 }
             }
@@ -45,7 +46,7 @@ def add_book(es, file_path):
 
     with open(file_path, 'rb') as f:
         fb64 = base64.standard_b64encode(f.read()).decode()
-        fname = f.name
+        fname = basename(f.name)
         fmine = mimetypes.MimeTypes().guess_type(f.name)[0]
 
     doc = {
@@ -53,6 +54,7 @@ def add_book(es, file_path):
             "_content_type": fmine,
             "_name": fname,
             "_language": "en",
+            "_indexed_chars": -1,
             "_content": fb64
         }
     }
@@ -72,7 +74,7 @@ def search(es, q):
         return 'No index "' + ELASTICSEARCH_INDEX + '" found'
 
     body = {
-        "fields": ["file.title", "file.author"],
+        "fields": ["file.title", "file.author", "file.name"],
         "query": {
             "match": {
                 "file.content": {
@@ -103,7 +105,7 @@ def search(es, q):
 # if __name__ == '__main__':
     # from elasticsearch import Elasticsearch
     #
-    # es_ = Elasticsearch(ELASTICSEARCH_HOSTS)
+    # es_ = Elasticsearch(ELASTICSEARCH_HOSTS, timeout=ELASTICSEARCH_TIMEOUT)
     # q_ = 'java'
     # create(es)
     # result = search(es_, q_)
@@ -113,6 +115,6 @@ def search(es, q):
     #         print(html)
         # print("%(timestamp)s %(author)s: %(text)s" % hit["_source"])
 
-    # add_books_from_folder(es, '/home/sasha/Downloads/Books/')
+    # add_books_from_folder(es_, '/home/sasha/Downloads/Books/')
     # add_book(es, '../books/Hello Web App.pdf')
     # add_book(es, '../books/10104297.epub')
