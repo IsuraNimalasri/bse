@@ -15,6 +15,7 @@ $(document).ready(function(){
                         var msg = $('<div class="alert alert-danger" role="alert"></div>');
                         msg.append(response.e);
 
+                        $('.alert.alert-danger').remove();
                         formdiv.prepend(msg).fadeIn();
                     } else {
                         form.remove();
