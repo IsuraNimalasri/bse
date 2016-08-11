@@ -1,10 +1,12 @@
 import json
 import re
 
+import falcon
+
 from retask import Task
 from retask import Queue
 
-import falcon
+from configs import (TASK_QUEUE_CONNECTION, TASK_QUEUE_SEARCH)
 
 
 # Falcon follows the REST architectural style, meaning (among
@@ -63,14 +65,7 @@ class BSEResource(object):
 
 def enqueue_task(task_data):
 
-    config = {
-        'host': '192.168.0.29',
-        'port': 6379,
-        'db': 0,
-        'password': None,
-    }
-
-    queue = Queue('search', config=config)
+    queue = Queue(TASK_QUEUE_SEARCH, config=TASK_QUEUE_CONNECTION)
     queue.connect()
     task = Task(task_data)
     queue.enqueue(task)

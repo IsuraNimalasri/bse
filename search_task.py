@@ -4,10 +4,15 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from elasticsearch import Elasticsearch
+
+from retask import Task
 from retask import Queue
+
 from yattag import Doc
 
 from es import search
+from configs import (TASK_QUEUE_CONNECTION, TASK_QUEUE_SEARCH, TASK_QUEUE_LOG, ELASTICSEARCH_HOSTS,
+                      EMAIL_LOGIN, EMAIL_PASS, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT)
 
 
 def format_result(result):
@@ -40,7 +45,7 @@ def send_email(result, task_data):
 
     # me == my email address
     # you == recipient's email address
-    me = "results.bse@gmail.com"
+    me = EMAIL_LOGIN
     you = task_data['email']
     # you = "sasha.pazuyk@gmail.com"
 
@@ -66,41 +71,52 @@ def send_email(result, task_data):
     msg.attach(part2)
 
     # Send the message via local SMTP server.
-    server = smtplib.SMTP('smtp.gmail.com:587')
-    server.connect(host='smtp.gmail.com', port=587)
+    server = smtplib.SMTP(host=EMAIL_SMTP_HOST, port=EMAIL_SMTP_PORT)
+    server.connect(host=EMAIL_SMTP_HOST, port=EMAIL_SMTP_PORT)
     server.ehlo()
     server.starttls()
-    server.login(me, 'Create your Google Account')
+    server.login(me, EMAIL_PASS)
     server.sendmail(me, you, msg.as_string())
     server.close()
 
 
-def get_task():
-    config = {
-        'host': '192.168.0.29',
-        'port': 6379,
-        'db': 0,
-        'password': None,
+def log_results(results, task_data):
+
+    log_task_data = {
+        'q': task_data['q'],
+        'email': task_data['email'],
+        'took': results['took']
     }
 
-    es = Elasticsearch(['192.168.0.29'])
+    queue = Queue(TASK_QUEUE_LOG, config=TASK_QUEUE_CONNECTION)
+    queue.connect()
+    task = Task(log_task_data)
+    queue.enqueue(task)
 
-    queue = Queue('search', config=config)
+
+def get_task():
+
+    es = Elasticsearch(ELASTICSEARCH_HOSTS)
+
+    queue = Queue(TASK_QUEUE_SEARCH, config=TASK_QUEUE_CONNECTION)
     queue.connect()
     while queue.length != 0:
-        # task = queue.dequeue()
-        task = queue.wait()
+        task = queue.dequeue()
+        # task = queue.wait()
         if task:
             results = search(es, task.data['q'])
             send_email(results, task.data)
+            log_results(results, task.data)
 
 
 if __name__ == '__main__':
-    es_ = Elasticsearch(['192.168.0.29'])
-    task_ = {
-        'q': 'sql',
-        'email': 'sasha.pazuyk@gmail.com'
-    }
+    get_task()
 
-    results_ = search(es_, task_['q'])
-    send_email(results_, task_)
+    # es_ = Elasticsearch(ELASTICSEARCH_HOSTS)
+    # task_ = {
+    #     'q': 'sql',
+    #     'email': 'sasha.pazuyk@gmail.com'
+    # }
+    #
+    # results_ = search(es_, task_['q'])
+    # send_email(results_, task_)

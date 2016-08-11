@@ -4,17 +4,15 @@ import mimetypes
 from os import listdir
 from os.path import isfile, join
 
-from elasticsearch import Elasticsearch
+from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_INDEX, ELASTICSEARCH_DOC_TYPE)
 
 
 def create_index(es):
-    index = 'library'
-    doc_type = 'book'
 
-    es.indices.create(index=index)
+    es.indices.create(index=ELASTICSEARCH_INDEX)
 
     mapping = {
-        "book": {
+        ELASTICSEARCH_DOC_TYPE: {
             "properties": {
                 "file": {
                     "type": "attachment",
@@ -33,18 +31,16 @@ def create_index(es):
         }
     }
 
-    es.indices.put_mapping(doc_type=doc_type, body=mapping)
+    es.indices.put_mapping(doc_type=ELASTICSEARCH_DOC_TYPE, body=mapping)
 
 
 def add_book(es, file_path):
-    index = 'library'
-    doc_type = 'book'
 
-    is_library = es.indices.exists(index=index)
+    is_library = es.indices.exists(index=ELASTICSEARCH_INDEX)
     if not is_library:
         create_index(es)
 
-    count = es.count(index=index, doc_type=doc_type)['count']
+    count = es.count(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE)['count']
     print(count)
 
     with open(file_path, 'rb') as f:
@@ -60,8 +56,8 @@ def add_book(es, file_path):
             "_content": fb64
         }
     }
-    es.create(index=index, doc_type=doc_type, id=count, body=doc)
-    es.indices.refresh(index=index)
+    es.create(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE, id=count, body=doc)
+    es.indices.refresh(index=ELASTICSEARCH_INDEX)
 
 
 def add_books_from_folder(es, folder_path):
@@ -71,9 +67,9 @@ def add_books_from_folder(es, folder_path):
 
 
 def search(es, q):
-    is_library = es.indices.exists(index='library')
+    is_library = es.indices.exists(index=ELASTICSEARCH_INDEX)
     if not is_library:
-        return 'No index "library" found'
+        return 'No index "' + ELASTICSEARCH_INDEX + '" found'
 
     body = {
         "fields": ["file.title", "file.author"],
@@ -100,11 +96,14 @@ def search(es, q):
         "timeout": "1ms"
     }
 
-    results = es.search(index="library", body=body, params=params)
+    results = es.search(index=ELASTICSEARCH_INDEX, body=body, params=params)
     return results
 
+
 # if __name__ == '__main__':
-    # es_ = Elasticsearch(['192.168.0.29'])
+    # from elasticsearch import Elasticsearch
+    #
+    # es_ = Elasticsearch(ELASTICSEARCH_HOSTS)
     # q_ = 'java'
     # create(es)
     # result = search(es_, q_)
