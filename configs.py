@@ -1,6 +1,6 @@
 # Task queue configuration
 TASK_QUEUE_CONNECTION = {
-        'host': '192.168.0.29',
+        'host': 'REDIS',
         'port': 6379,
         'db': 0,
         'password': None,
@@ -15,7 +15,7 @@ EMAIL_SMTP_HOST = 'smtp.gmail.com'
 EMAIL_SMTP_PORT = 587
 
 # Elasticsearch configuration
-ELASTICSEARCH_HOSTS = ['192.168.0.29']
+ELASTICSEARCH_HOSTS = ['ELASTICSEARCH']
 ELASTICSEARCH_TIMEOUT = 300
 ELASTICSEARCH_INDEX = 'library'
 ELASTICSEARCH_DOC_TYPE = 'book'
