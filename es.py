@@ -77,7 +77,7 @@ def search(es, q):
         create_index(es)
 
     body = {
-        "fields": ["file.title", "file.author", "file.name"],
+        "fields": ["file.title", "file.name"],
         "query": {
             "match": {
                 "file.content": {
@@ -110,4 +110,4 @@ if __name__ == '__main__':
 
         add_books_from_folder(es_, path)
     else:
-        print('Provide 1 argument as "path/to/folder".')
+        print('Provide 1 argument as "/path/to/folder/".')
