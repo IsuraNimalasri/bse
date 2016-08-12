@@ -11,11 +11,9 @@ Requirements
 
 For Python requirements see
 
-::
-
+```sh
     ./requirements/base.txt
-
-::
+```
 
 Mapper Attachments Type for Elasticsearch plugin
 
@@ -24,19 +22,18 @@ Redis
 Build
 -----
 
-::
-
+```sh
     docker build -t falcon .
-
-::
+```
 
 Run
 ---
 
 Step-by-step instruction
 
-::
+# Run containers
 
+```sh
     docker run --name redis -d redis
 
     docker run --name elasticsearch -d elasticsearch
@@ -46,20 +43,38 @@ Step-by-step instruction
     docker run --name falcon --link redis:REDIS --link elasticsearch:ELASTICSEARCH -it -p 8000:8000 falcon /bin/bash
 
     gunicorn -b 0.0.0.0:8000 bse:app &
+```
 
+# Add books
+
+```sh
+    python es.py /path/to/folder
+```
+
+# Go to page and do search
+
+```
+    http://localhost:8000/
+```
+
+# Run workers
+
+```sh
     python search_task.py
 
     python log_task.py
+```
 
+# Observe logs
+
+```sh
     cat requests.log
-
-::
+```
 
 Debug
 -----
 
-::
-
+```sh
     docker run --name kibana --link elasticsearch:elasticsearch -d kibana
 
     docker exec kibana /opt/kibana/bin/kibana plugin --install elastic/sense
@@ -67,5 +82,9 @@ Debug
     docker stop kibana
 
     docker start kibana
+```
 
-::
+License
+-------
+
+MIT
