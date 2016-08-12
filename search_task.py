@@ -24,7 +24,7 @@ def format_result(result):
         with tag('body'):
             with tag('p'):
                 text('Hi!')
-            if 'hits' in result and 'hits' in result['hits']:
+            if 'hits' in result and 'hits' in result['hits'] and result['hits']['hits']:
                 with tag('p'):
                     text('Here are your results:')
                 with tag('ul', style='list-style-type:none;'):
