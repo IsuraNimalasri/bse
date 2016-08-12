@@ -43,15 +43,13 @@ docker stop elasticsearch && docker start elasticsearch
 Replace `/path/to/folder/` to real path
 
 ```
-docker run --name falcon -v /path/to/folder/:/opt/books/ --link redis:REDIS --link elasticsearch:ELASTICSEARCH -it -p 8000:8000 falcon /bin/bash
-
-gunicorn -b 0.0.0.0:8000 bse:app &
+docker run --name falcon -v /path/to/folder/:/opt/books/ --link redis:REDIS --link elasticsearch:ELASTICSEARCH -d -p 8000:8000 falcon
 ```
 
 #### Add books
 
 ```
-python es.py /opt/books/
+docker exec falcon /bin/bash -c 'python es.py /opt/books/'
 ```
 
 #### Go to page and do search
@@ -63,15 +61,15 @@ http://localhost:8000/
 #### Run workers
 
 ```
-python search_task.py
+docker exec falcon /bin/bash -c 'python search_task.py'
 
-python log_task.py
+docker exec falcon /bin/bash -c 'python log_task.py'
 ```
 
 #### Observe logs
 
 ```
-cat requests.log
+docker exec falcon cat requests.log
 ```
 
 #### Cleanup
@@ -94,13 +92,13 @@ docker run --name redis -d redis && docker run --name elasticsearch -d elasticse
 Replace `/path/to/folder/` to real path
 
 ```
-docker run --name falcon -v /path/to/folder/:/opt/books/ --link redis:REDIS --link elasticsearch:ELASTICSEARCH -it -p 8000:8000 falcon /bin/bash 
+docker run --name falcon -v /path/to/folder/:/opt/books/ --link redis:REDIS --link elasticsearch:ELASTICSEARCH -d -p 8000:8000 falcon
 ```
 
-#### Run Gunicorn and Add books
+#### Add books
 
 ```
-gunicorn -b 0.0.0.0:8000 bse:app & python es.py /opt/books/
+docker exec falcon /bin/bash -c 'python es.py /opt/books/'
 ```
 
 #### Go to page and do search
@@ -112,7 +110,7 @@ http://localhost:8000/
 #### Run workers and Observe logs
 
 ```
-python search_task.py && python log_task.py && cat requests.log
+docker exec falcon /bin/bash -c 'python search_task.py && python log_task.py && cat requests.log'
 ```
 
 
