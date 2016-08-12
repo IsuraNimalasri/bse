@@ -1,0 +1,27 @@
+version: '2'
+services:
+
+  web:
+    build: .
+    volumes:
+      - ./src:/falcon/bse
+      - /path/to/folder/:/opt/books/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - elasticsearch
+
+  celery:
+    build: .
+    command: celery -A tasks worker -l info
+    volumes:
+      - ./src:/falcon/bse
+    depends_on:
+      - rabbit
+
+  elasticsearch:
+    image: elasticsearch
+    command: bin/plugin install mapper-attachments
+
+  rabbit:
+    image: rabbitmq

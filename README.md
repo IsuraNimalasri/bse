@@ -40,6 +40,8 @@ docker exec elasticsearch bin/plugin install mapper-attachments
 docker stop elasticsearch && docker start elasticsearch
 
 docker run --name rabbit --hostname rabbit -d rabbitmq
+
+docker run --name celery --link rabbit:rabbit -d celery
 ```
 
 Replace `/path/to/folder/` to real path
