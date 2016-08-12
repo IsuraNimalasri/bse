@@ -6,7 +6,7 @@ RUN \
 	cd / && \
 	mkdir falcon && \
 	cd falcon && \
-	git clone -b develop https://github.com/Sasha-P/bse.git && \
+	git clone https://github.com/Sasha-P/bse.git && \
 	ls && \
 	cd bse && \
 	pip install -r requirements.txt
