@@ -21,109 +21,73 @@ Redis
 Build
 -----
 
-```
-docker build -t falcon .
-```
-
-Run Step-by-step
-----------------
-
-#### Run containers
+Specify path to folder with books by replacing `/path/to/folder/` in docker-compose.yml
 
 ```
-docker run --name redis -d redis
+...
 
-docker run --name elasticsearch -d elasticsearch
+  web:
+    build: .
+    command: ./run_web.sh
+    volumes:
+      - ./src:/falcon/bse
+      - /path/to/folder/:/opt/books/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - elasticsearch
 
-docker exec elasticsearch bin/plugin install mapper-attachments
-
-docker stop elasticsearch && docker start elasticsearch
-
-docker run --name rabbit --hostname rabbit -d rabbitmq
-
-docker run --name celery --link rabbit:rabbit -d celery
+...
 ```
-
-Replace `/path/to/folder/` to real path
-
-```
-docker run --name falcon -v /path/to/folder/:/opt/books/ --link rabbit:RABBIT --link redis:REDIS --link elasticsearch:ELASTICSEARCH -d -p 8000:8000 falcon
-```
-
-#### Add books
+Run build command
 
 ```
-docker exec falcon /bin/bash -c 'python es.py /opt/books/'
+docker-compose build
 ```
 
-#### Go to page and do search
+Run
+---
+
+Run composition
 
 ```
-http://localhost:8000/
+docker-compose up
 ```
 
-#### Observe logs
+Install mapper-attachments plugin on elasticsearch container
 
 ```
-docker exec falcon cat requests.log
+docker exec bse_elasticsearch_1 bin/plugin install mapper-attachments
 ```
 
-#### Cleanup
+Restart elasticsearch container
 
 ```
-docker stop elasticsearch redis falcon rabbit
-
-docker rm elasticsearch redis falcon rabbit
+docker stop bse_elasticsearch_1 && docker start bse_elasticsearch_1
 ```
 
-Run shortcut
-------------
-
-#### Run containers
+Add books to Elasticsearch
 
 ```
-docker run --name redis -d redis && docker run --name elasticsearch -d elasticsearch && docker exec elasticsearch bin/plugin install mapper-attachments && docker stop elasticsearch && docker start elasticsearch && docker run --name rabbit --hostname rabbit -d rabbitmq
+docker exec bse_web_1 /bin/bash -c 'python es.py /opt/books/'
 ```
 
-Replace `/path/to/folder/` to real path
-
-```
-docker run --name falcon -v /path/to/folder/:/opt/books/ --link rabbit:RABBIT --link redis:REDIS --link elasticsearch:ELASTICSEARCH -d -p 8000:8000 falcon
-```
-
-#### Add books
-
-```
-docker exec falcon /bin/bash -c 'python es.py /opt/books/'
-```
-
-#### Go to page and do search
+Go to page and do search
 
 ```
 http://localhost:8000/
 ```
 
-#### Observe logs
+Observe logs
 
 ```
-docker exec falcon /bin/bash -c 'cat requests.log'
+docker exec bse_web_1 cat requests.log
 ```
 
-#### Cleanup
+Cleanup
 
 ```
-docker stop elasticsearch redis falcon rabbit && docker rm elasticsearch redis falcon rabbit
-```
-
-Debug
------
-
-```
-docker run --name kibana --link elasticsearch:elasticsearch -d kibana
-
-docker exec kibana /opt/kibana/bin/kibana plugin --install elastic/sense
-
-docker stop kibana && docker start kibana
+docker-compose down && docker rmi bse_web bse_celery
 ```
 
 License

@@ -3,6 +3,7 @@ services:
 
   web:
     build: .
+    command: ./run_web.sh
     volumes:
       - ./src:/falcon/bse
       - /path/to/folder/:/opt/books/
@@ -13,7 +14,7 @@ services:
 
   celery:
     build: .
-    command: celery -A tasks worker -l info
+    command: ./run_celery.sh
     volumes:
       - ./src:/falcon/bse
     depends_on:
@@ -21,7 +22,6 @@ services:
 
   elasticsearch:
     image: elasticsearch
-    command: bin/plugin install mapper-attachments
 
   rabbit:
     image: rabbitmq
