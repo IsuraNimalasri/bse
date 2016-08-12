@@ -4,7 +4,7 @@ from search_task import do_task as do_search_task
 from log_task import do_task as do_log_task
 
 
-app = Celery('tasks', broker='amqp://guest@localhost//')
+app = Celery('tasks', broker='amqp://guest@RABBIT//')
 
 
 @app.task

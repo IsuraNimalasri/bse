@@ -38,12 +38,14 @@ docker run --name elasticsearch -d elasticsearch
 docker exec elasticsearch bin/plugin install mapper-attachments
 
 docker stop elasticsearch && docker start elasticsearch
+
+docker run --name rabbit --hostname rabbit -d rabbitmq
 ```
 
 Replace `/path/to/folder/` to real path
 
 ```
-docker run --name falcon -v /path/to/folder/:/opt/books/ --link redis:REDIS --link elasticsearch:ELASTICSEARCH -d -p 8000:8000 falcon
+docker run --name falcon -v /path/to/folder/:/opt/books/ --link rabbit:RABBIT --link redis:REDIS --link elasticsearch:ELASTICSEARCH -d -p 8000:8000 falcon
 ```
 
 #### Add books
@@ -56,14 +58,6 @@ docker exec falcon /bin/bash -c 'python es.py /opt/books/'
 
 ```
 http://localhost:8000/
-```
-
-#### Run workers
-
-```
-docker exec falcon /bin/bash -c 'python search_task.py'
-
-docker exec falcon /bin/bash -c 'python log_task.py'
 ```
 
 #### Observe logs
@@ -75,9 +69,9 @@ docker exec falcon cat requests.log
 #### Cleanup
 
 ```
-docker stop elasticsearch redis falcon
+docker stop elasticsearch redis falcon rabbit
 
-docker rm elasticsearch redis falcon
+docker rm elasticsearch redis falcon rabbit
 ```
 
 Run shortcut
@@ -86,13 +80,13 @@ Run shortcut
 #### Run containers
 
 ```
-docker run --name redis -d redis && docker run --name elasticsearch -d elasticsearch && docker exec elasticsearch bin/plugin install mapper-attachments && docker stop elasticsearch && docker start elasticsearch
+docker run --name redis -d redis && docker run --name elasticsearch -d elasticsearch && docker exec elasticsearch bin/plugin install mapper-attachments && docker stop elasticsearch && docker start elasticsearch && docker run --name rabbit --hostname rabbit -d rabbitmq
 ```
 
 Replace `/path/to/folder/` to real path
 
 ```
-docker run --name falcon -v /path/to/folder/:/opt/books/ --link redis:REDIS --link elasticsearch:ELASTICSEARCH -d -p 8000:8000 falcon
+docker run --name falcon -v /path/to/folder/:/opt/books/ --link rabbit:RABBIT --link redis:REDIS --link elasticsearch:ELASTICSEARCH -d -p 8000:8000 falcon
 ```
 
 #### Add books
@@ -107,16 +101,16 @@ docker exec falcon /bin/bash -c 'python es.py /opt/books/'
 http://localhost:8000/
 ```
 
-#### Run workers and Observe logs
+#### Observe logs
 
 ```
-docker exec falcon /bin/bash -c 'python search_task.py && python log_task.py && cat requests.log'
+docker exec falcon /bin/bash -c 'cat requests.log'
 ```
 
 #### Cleanup
 
 ```
-docker stop elasticsearch redis falcon && docker rm elasticsearch redis falcon
+docker stop elasticsearch redis falcon rabbit && docker rm elasticsearch redis falcon rabbit
 ```
 
 Debug
