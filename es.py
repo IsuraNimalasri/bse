@@ -69,9 +69,10 @@ def add_books_from_folder(es, folder_path):
 
 
 def search(es, q):
+
     is_library = es.indices.exists(index=ELASTICSEARCH_INDEX)
     if not is_library:
-        return 'No index "' + ELASTICSEARCH_INDEX + '" found'
+        create_index(es)
 
     body = {
         "fields": ["file.title", "file.author", "file.name"],
@@ -94,11 +95,7 @@ def search(es, q):
         }
     }
 
-    params = {
-        "timeout": "1ms"
-    }
-
-    results = es.search(index=ELASTICSEARCH_INDEX, body=body, params=params)
+    results = es.search(index=ELASTICSEARCH_INDEX, body=body)
     return results
 
 

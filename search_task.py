@@ -24,21 +24,25 @@ def format_result(result):
         with tag('body'):
             with tag('p'):
                 text('Hi!')
-            with tag('p'):
-                text('Here are your results:')
+            if 'hits' in result and 'hits' in result['hits']:
+                with tag('p'):
+                    text('Here are your results:')
+                with tag('ul', style='list-style-type:none;'):
+                    for hit in result['hits']['hits']:
+                        with tag('li'):
+                            with tag('h2'):
+                                if 'fields' in hit and 'file.title' in hit['fields'] and hit['fields']['file.title'][0]:
+                                    text(hit['fields']['file.title'][0])
+                                else:
+                                    text(hit['fields']['file.name'][0])
+                            with tag('ol'):
+                                for r in hit['highlight']['file.content']:
+                                    with tag('li'):
+                                        doc.asis(r)
+            else:
+                with tag('p'):
+                    text('Nothing found. Try again late!')
 
-            with tag('ul', style='list-style-type:none;'):
-                for hit in result['hits']['hits']:
-                    with tag('li'):
-                        with tag('h2'):
-                            if 'fields' in hit and 'file.title' in hit['fields'] and hit['fields']['file.title'][0]:
-                                text(hit['fields']['file.title'][0])
-                            else:
-                                text(hit['fields']['file.name'][0])
-                        with tag('ol'):
-                            for r in hit['highlight']['file.content']:
-                                with tag('li'):
-                                    doc.asis(r)
     return doc.getvalue()
 
 
