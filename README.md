@@ -1,4 +1,3 @@
-===================
 Books Search Engine
 ===================
 
@@ -11,8 +10,8 @@ Requirements
 
 For Python requirements see
 
-```sh
-    ./requirements/base.txt
+```
+./requirements.txt
 ```
 
 Mapper Attachments Type for Elasticsearch plugin
@@ -31,7 +30,7 @@ Run
 
 Step-by-step instruction
 
-### Run containers
+#### Run containers
 
 ```
 docker run --name redis -d redis
@@ -45,19 +44,19 @@ docker run --name falcon --link redis:REDIS --link elasticsearch:ELASTICSEARCH -
 gunicorn -b 0.0.0.0:8000 bse:app &
 ```
 
-### Add books
+#### Add books
 
 ```
 python es.py /path/to/folder
 ```
 
-### Go to page and do search
+#### Go to page and do search
 
 ```
 http://localhost:8000/
 ```
 
-### Run workers
+#### Run workers
 
 ```
 python search_task.py
@@ -65,7 +64,7 @@ python search_task.py
 python log_task.py
 ```
 
-### Observe logs
+#### Observe logs
 
 ```
 cat requests.log
