@@ -6,7 +6,7 @@ RUN \
 	cd / && \
 	mkdir falcon && \
 	cd falcon && \
-	git clone https://github.com/Sasha-P/bse.git && \
+	git clone -b feature-celery https://github.com/Sasha-P/bse.git && \
 	ls && \
 	cd bse && \
 	pip install -r requirements.txt
@@ -14,4 +14,4 @@ RUN \
 EXPOSE 8000
 
 WORKDIR /falcon/bse
-CMD gunicorn -b 0.0.0.0:8000 bse:app
+CMD gunicorn -b 0.0.0.0:8000 bse:app && celery -A tasks worker -l info

@@ -113,6 +113,11 @@ http://localhost:8000/
 docker exec falcon /bin/bash -c 'python search_task.py && python log_task.py && cat requests.log'
 ```
 
+#### Cleanup
+
+```
+docker stop elasticsearch redis falcon && docker rm elasticsearch redis falcon
+```
 
 Debug
 -----

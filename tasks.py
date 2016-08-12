@@ -1,0 +1,18 @@
+from celery import Celery
+
+from search_task import do_task as do_search_task
+from log_task import do_task as do_log_task
+
+
+app = Celery('tasks', broker='amqp://guest@localhost//')
+
+
+@app.task
+def search_task(task_data):
+    log_task_data = do_search_task(task_data)
+    log_task.delay(log_task_data)
+
+
+@app.task
+def log_task(task_data):
+    do_log_task(task_data)
