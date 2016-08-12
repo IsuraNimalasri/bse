@@ -13,46 +13,59 @@ For Python requirements see
 
 ::
 
-  ./requirements/base.txt
+    ./requirements/base.txt
 
 ::
 
-Elasticsearch 2.1.2
+Mapper Attachments Type for Elasticsearch plugin
 
-Mapper Attachments Type for Elasticsearch 3.1.2
+Redis
 
-Redis 3.2.3
+Build
+-----
 
+::
+
+    docker build -t falcon .
+
+::
 
 Run
 ---
 
-docker build -t falcon .
+Step-by-step instruction
 
-docker run --name redis -d redis
+::
 
-docker run --name elasticsearch -d elasticsearch
+    docker run --name redis -d redis
 
-docker exec elasticsearch bin/plugin install mapper-attachments
+    docker run --name elasticsearch -d elasticsearch
 
-docker run --name falcon --link redis:REDIS --link elasticsearch:ELASTICSEARCH -it -p 8000:8000 falcon /bin/bash
+    docker exec elasticsearch bin/plugin install mapper-attachments
 
-gunicorn -b 0.0.0.0:8000 bse:app &
+    docker run --name falcon --link redis:REDIS --link elasticsearch:ELASTICSEARCH -it -p 8000:8000 falcon /bin/bash
 
-python search_task.py
+    gunicorn -b 0.0.0.0:8000 bse:app &
 
-python log_task.py
+    python search_task.py
 
-cat requests.log
+    python log_task.py
 
+    cat requests.log
+
+::
 
 Debug
 -----
 
-docker run --name kibana --link elasticsearch:elasticsearch -d kibana
+::
 
-docker exec kibana /opt/kibana/bin/kibana plugin --install elastic/sense
+    docker run --name kibana --link elasticsearch:elasticsearch -d kibana
 
-docker stop kibana
+    docker exec kibana /opt/kibana/bin/kibana plugin --install elastic/sense
 
-docker start kibana
+    docker stop kibana
+
+    docker start kibana
+
+::

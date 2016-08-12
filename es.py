@@ -1,10 +1,12 @@
+from os import listdir
+from os.path import isfile, join, basename
+import sys
 import base64
 import mimetypes
 
-from os import listdir
-from os.path import isfile, join, basename
+from elasticsearch import Elasticsearch
 
-from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_INDEX, ELASTICSEARCH_DOC_TYPE)
+from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_TIMEOUT, ELASTICSEARCH_INDEX, ELASTICSEARCH_DOC_TYPE)
 
 
 def create_index(es):
@@ -99,19 +101,13 @@ def search(es, q):
     return results
 
 
-# if __name__ == '__main__':
-    # from elasticsearch import Elasticsearch
-    #
-    # es_ = Elasticsearch(ELASTICSEARCH_HOSTS, timeout=ELASTICSEARCH_TIMEOUT)
-    # q_ = 'java'
-    # create(es)
-    # result = search(es_, q_)
-    #
-    # for hit in result['hits']['hits']:
-    #     for html in hit['highlight']['file.content']:
-    #         print(html)
-        # print("%(timestamp)s %(author)s: %(text)s" % hit["_source"])
+if __name__ == '__main__':
 
-    # add_books_from_folder(es_, '/home/sasha/Downloads/Books/')
-    # add_book(es, '../books/Hello Web App.pdf')
-    # add_book(es, '../books/10104297.epub')
+    es_ = Elasticsearch(ELASTICSEARCH_HOSTS, timeout=ELASTICSEARCH_TIMEOUT)
+
+    if len(sys.argv) >= 2:
+        path = sys.argv[1]
+
+        add_books_from_folder(es_, path)
+    else:
+        print('Provide 1 argument as "path/to/folder".')

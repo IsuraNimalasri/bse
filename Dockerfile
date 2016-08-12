@@ -9,7 +9,7 @@ RUN \
 	git clone -b develop https://github.com/Sasha-P/bse.git && \
 	ls && \
 	cd bse && \
-	pip install -r requirements/base.txt
+	pip install -r requirements.txt
 
 EXPOSE 8000
 
