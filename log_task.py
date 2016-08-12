@@ -28,12 +28,3 @@ def get_task():
 
 if __name__ == '__main__':
     get_task()
-
-    # log_task("asd asd")
-    #
-    # log_task_data = {
-    #     'q': 'falcon',
-    #     'email': 'a@b.com',
-    #     'took': 234
-    # }
-    # log_task(log_task_data)

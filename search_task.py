@@ -116,12 +116,3 @@ def get_task():
 
 if __name__ == '__main__':
     get_task()
-
-    # es_ = Elasticsearch(ELASTICSEARCH_HOSTS, timeout=ELASTICSEARCH_TIMEOUT)
-    # task_ = {
-    #     'q': 'sql',
-    #     'email': 'sasha.pazuyk@gmail.com'
-    # }
-    #
-    # results_ = search(es_, task_['q'])
-    # send_email(results_, task_)
