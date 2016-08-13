@@ -63,7 +63,7 @@ docker exec bse_elasticsearch_1 bin/plugin install mapper-attachments
 Restart elasticsearch container
 
 ```
-docker stop bse_elasticsearch_1 && docker start bse_elasticsearch_1
+docker restart bse_elasticsearch_1
 ```
 
 Add books to Elasticsearch
