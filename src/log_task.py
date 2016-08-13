@@ -11,10 +11,6 @@ def log_task(task_data):
     file_handler.setFormatter(log_formatter)
     log.addHandler(file_handler)
 
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(log_formatter)
-    log.addHandler(console_handler)
-
     msg = 'email:' + task_data['email'] + '; '\
         + 'q:' + task_data['q'] + '; '\
         + 'took:' + str(task_data['took'])

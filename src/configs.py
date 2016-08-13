@@ -11,7 +11,7 @@ ELASTICSEARCH_INDEX = 'library'
 ELASTICSEARCH_DOC_TYPE = 'book'
 
 # Log configuration
-LOG_PATH = '/var/log'
-LOG_FILENAME = 'requests.log'
-LOG_FORMAT = '%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s'
+LOG_PATH = '.'
+LOG_FILENAME = 'requests'
+LOG_FORMAT = '%(asctime)s | %(message)s'
 
