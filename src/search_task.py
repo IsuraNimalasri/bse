@@ -5,14 +5,10 @@ from email.mime.text import MIMEText
 
 from elasticsearch import Elasticsearch
 
-from retask import Task
-from retask import Queue
-
 from yattag import Doc
 
 from es import search
-from configs import (TASK_QUEUE_CONNECTION, TASK_QUEUE_SEARCH, TASK_QUEUE_LOG,
-                     ELASTICSEARCH_HOSTS, ELASTICSEARCH_TIMEOUT,
+from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_TIMEOUT,
                      EMAIL_LOGIN, EMAIL_PASS, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT)
 
 
@@ -93,26 +89,14 @@ def log_results(results, task_data):
         'took': results['took']
     }
 
-    queue = Queue(TASK_QUEUE_LOG, config=TASK_QUEUE_CONNECTION)
-    queue.connect()
-    task = Task(log_task_data)
-    queue.enqueue(task)
+    return log_task_data
 
 
-def get_task():
+def do_task(task_data):
 
     es = Elasticsearch(ELASTICSEARCH_HOSTS, timeout=ELASTICSEARCH_TIMEOUT)
 
-    queue = Queue(TASK_QUEUE_SEARCH, config=TASK_QUEUE_CONNECTION)
-    queue.connect()
-    while queue.length != 0:
-        task = queue.dequeue()
-        # task = queue.wait()
-        if task:
-            results = search(es, task.data['q'])
-            send_email(results, task.data)
-            log_results(results, task.data)
-
-
-if __name__ == '__main__':
-    get_task()
+    results = search(es, task_data['q'])
+    send_email(results, task_data)
+    log_task_data = log_results(results, task_data)
+    return log_task_data

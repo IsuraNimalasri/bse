@@ -3,10 +3,7 @@ import re
 
 import falcon
 
-from retask import Task
-from retask import Queue
-
-from configs import (TASK_QUEUE_CONNECTION, TASK_QUEUE_SEARCH)
+from tasks import search_task
 
 
 # Falcon follows the REST architectural style, meaning (among
@@ -65,10 +62,7 @@ class BSEResource(object):
 
 def enqueue_task(task_data):
 
-    queue = Queue(TASK_QUEUE_SEARCH, config=TASK_QUEUE_CONNECTION)
-    queue.connect()
-    task = Task(task_data)
-    queue.enqueue(task)
+    search_task.delay(task_data)
 
 
 def validate_email(email):
