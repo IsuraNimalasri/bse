@@ -1,0 +1,27 @@
+version: '2'
+services:
+
+  web:
+    build: .
+    command: ./run_web.sh
+    volumes:
+      - ./src:/falcon/bse
+      - /path/to/folder/:/opt/books/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - elasticsearch
+
+  celery:
+    build: .
+    command: ./run_celery.sh
+    volumes:
+      - ./src:/falcon/bse
+    depends_on:
+      - rabbit
+
+  elasticsearch:
+    image: elasticsearch
+
+  rabbit:
+    image: rabbitmq

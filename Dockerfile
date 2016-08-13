@@ -2,16 +2,11 @@ FROM python:3.4.5
 
 MAINTAINER Sasha
 
-RUN \
-	cd / && \
-	mkdir falcon && \
-	cd falcon && \
-	git clone https://github.com/Sasha-P/bse.git && \
-	ls && \
-	cd bse && \
-	pip install -r requirements.txt
-
-EXPOSE 8000
+ADD requirements.txt /falcon/bse/requirements.txt
 
 WORKDIR /falcon/bse
-CMD gunicorn -b 0.0.0.0:8000 bse:app
+
+RUN pip install -r requirements.txt
+
+# create unprivileged user
+RUN adduser --disabled-password --gecos '' fuser
