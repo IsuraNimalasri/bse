@@ -25,6 +25,7 @@ def create_index(es):
                     "type": "string"
                 },
                 "content": {
+                    "type": "nested",
                     "properties": {
                         "page_number": {
                             "store": "yes",
@@ -100,18 +101,18 @@ def search(es, q):
         create_index(es)
 
     body = {
-        "fields": ["content.page_number", "title", "file_name"],
+        "fields": ["title", "file_name"],
         "query": {
-            "match": {
-                "content.text": q
-            }
-        },
-        "highlight": {
-            "number_of_fragments": 10000,
-            "pre_tags": ["<b>"],
-            "post_tags": ["</b>"],
-            "fields": {
-                "content.text": {
+            "nested": {
+                "path": "content",
+                "query": {
+                    "match": {"content.text": q}
+                },
+                "inner_hits": {
+                    "fields": ["content.page_number"],
+                    "sort": [
+                        {"content.page_number": {"order": "asc"}}
+                    ]
                 }
             }
         }

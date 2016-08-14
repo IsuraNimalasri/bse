@@ -31,8 +31,14 @@ def format_result(q, result):
                                     text(hit['fields']['title'][0])
                                 else:
                                     text(hit['fields']['file_name'][0])
+
+                            inner_hits = hit['inner_hits']['hits']['hits']
+                            page_numbers = []
+                            for inner_hit in inner_hits:
+                                page_numbers.append(inner_hit['fields']['content.page_number'][0])
+
                             with tag('p'):
-                                text('{0} found on page(s): {1}'.format(q, hit['fields']['content.page_number']))
+                                text('{0} found on page(s): {1}'.format(q, page_numbers))
             else:
                 with tag('p'):
                     text('Nothing found. Try again late!')
