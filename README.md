@@ -54,18 +54,6 @@ Run composition
 docker-compose up
 ```
 
-Install mapper-attachments plugin on elasticsearch container
-
-```
-docker exec bse_elasticsearch_1 bin/plugin install mapper-attachments
-```
-
-Restart elasticsearch container
-
-```
-docker restart bse_elasticsearch_1
-```
-
 Add books to Elasticsearch
 
 ```
