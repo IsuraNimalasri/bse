@@ -1,10 +1,10 @@
 from os import listdir
 from os.path import isfile, join, basename
 import sys
-import base64
 import mimetypes
 
 from elasticsearch import Elasticsearch
+import PyPDF2
 
 from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_TIMEOUT, ELASTICSEARCH_INDEX, ELASTICSEARCH_DOC_TYPE)
 
@@ -16,18 +16,25 @@ def create_index(es):
     mapping = {
         ELASTICSEARCH_DOC_TYPE: {
             "properties": {
-                "file": {
-                    "type": "attachment",
-                    "fields": {
-                        "date": {"store": "yes"},
-                        "title": {"store": "yes"},
-                        "name": {"store": "yes"},
-                        "author": {"store": "yes"},
-                        "keywords": {"store": "yes"},
-                        "content_type": {"store": "yes"},
-                        "content_length": {"store": "yes"},
-                        "language": {"store": "yes"},
-                        "content": {"store": "yes"}
+                "file_name": {
+                    "store": "yes",
+                    "type": "string"
+                },
+                "title": {
+                    "store": "yes",
+                    "type": "string"
+                },
+                "content": {
+                    "type": "nested",
+                    "properties": {
+                        "page_number": {
+                            "store": "yes",
+                            "type": "integer"
+                        },
+                        "text": {
+                            "store": "yes",
+                            "type": "string"
+                        }
                     }
                 }
             }
@@ -47,21 +54,38 @@ def add_book(es, file_path):
     print(count)
 
     with open(file_path, 'rb') as f:
-        fb64 = base64.standard_b64encode(f.read()).decode()
         fname = basename(f.name)
-        fmine = mimetypes.MimeTypes().guess_type(f.name)[0]
+        fmime = mimetypes.MimeTypes().guess_type(f.name)[0]
 
-    doc = {
-        "file": {
-            "_content_type": fmine,
-            "_name": fname,
-            "_language": "en",
-            "_indexed_chars": -1,
-            "_content": fb64
-        }
-    }
-    es.create(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE, id=count, body=doc)
-    es.indices.refresh(index=ELASTICSEARCH_INDEX)
+        if fmime == 'application/pdf':
+            pdf = PyPDF2.PdfFileReader(f)
+            if not pdf.isEncrypted:
+
+                pages = pdf.numPages
+                print(pages)
+
+                content = []
+                for page_number in range(pages):
+                    page = pdf.getPage(page_number)
+                    text = page.extractText()
+
+                    book_page = {
+                        'page_number': page_number,
+                        'text': text
+                    }
+
+                    content.append(book_page)
+
+                title = pdf.getDocumentInfo().title
+
+                doc = {
+                    'file_name': fname,
+                    'title': title,
+                    'content': content
+                }
+
+                es.create(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE, id=count, body=doc)
+                es.indices.refresh(index=ELASTICSEARCH_INDEX)
 
 
 def add_books_from_folder(es, folder_path):
@@ -77,21 +101,18 @@ def search(es, q):
         create_index(es)
 
     body = {
-        "fields": ["file.title", "file.name"],
+        "fields": ["title", "file_name"],
         "query": {
-            "match": {
-                "file.content": {
-                    "query": q,
-                    "operator": "and"
-                }
-            }
-        },
-        "highlight": {
-            "number_of_fragments": 10000,
-            "pre_tags": ["<b>"],
-            "post_tags": ["</b>"],
-            "fields": {
-                "file.content": {
+            "nested": {
+                "path": "content",
+                "query": {
+                    "match": {"content.text": q}
+                },
+                "inner_hits": {
+                    "fields": ["content.page_number"],
+                    "sort": [
+                        {"content.page_number": {"order": "asc"}}
+                    ]
                 }
             }
         }
