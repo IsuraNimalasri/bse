@@ -12,7 +12,7 @@ from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_TIMEOUT,
                      EMAIL_LOGIN, EMAIL_PASS, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT)
 
 
-def format_result(result):
+def format_result(q, result):
     doc, tag, text = Doc().tagtext()
 
     doc.asis('<!DOCTYPE html>')
@@ -27,14 +27,12 @@ def format_result(result):
                     for hit in result['hits']['hits']:
                         with tag('li'):
                             with tag('h2'):
-                                if 'fields' in hit and 'file.title' in hit['fields'] and hit['fields']['file.title'][0]:
-                                    text(hit['fields']['file.title'][0])
+                                if 'fields' in hit and 'title' in hit['fields'] and hit['fields']['title'][0]:
+                                    text(hit['fields']['title'][0])
                                 else:
-                                    text(hit['fields']['file.name'][0])
-                            with tag('ol'):
-                                for r in hit['highlight']['file.content']:
-                                    with tag('li'):
-                                        doc.asis(r)
+                                    text(hit['fields']['file_name'][0])
+                            with tag('p'):
+                                text('{0} found on page(s): {1}'.format(q, hit['fields']['content.page_number']))
             else:
                 with tag('p'):
                     text('Nothing found. Try again late!')
@@ -56,7 +54,7 @@ def send_email(result, task_data):
     msg['From'] = me
     msg['To'] = you
 
-    html = format_result(result)
+    html = format_result(task_data['q'], result)
 
     # Create the body of the message (a plain-text and an HTML version).
     # text = "Hi!\nHow are you?\nHere is the link you wanted:\nhttps://www.python.org"
