@@ -32,7 +32,7 @@ def format_result(q, result):
                                 else:
                                     text(hit['fields']['file_name'][0])
 
-                            inner_hits = hit['inner_hits']['hits']['hits']
+                            inner_hits = hit['inner_hits']['content']['hits']['hits']
                             page_numbers = []
                             for inner_hit in inner_hits:
                                 page_numbers.append(inner_hit['fields']['content.page_number'][0])
