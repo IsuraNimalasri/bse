@@ -5,6 +5,7 @@ Books search engine powered by Elasticserch.
 
 Built on Falcon minimalistic Python framework.
 
+
 Requirements
 ------------
 
@@ -14,9 +15,7 @@ For Python requirements see
 ./requirements.txt
 ```
 
-Mapper Attachments Type for Elasticsearch plugin
-
-Redis
+**Works only with books in `PDF` format!**
 
 Build
 -----
