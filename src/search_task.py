@@ -35,10 +35,10 @@ def format_result(q, result):
                             inner_hits = hit['inner_hits']['content']['hits']['hits']
                             page_numbers = []
                             for inner_hit in inner_hits:
-                                page_numbers.append(inner_hit['fields']['content.page_number'][0])
+                                page_numbers.append(inner_hit['fields']['content.page_number'][0] + 1)
 
                             with tag('p'):
-                                text('{0} found on page(s): {1}'.format(q, page_numbers))
+                                text('"{0}" found on page(s): {1}'.format(q, ', '.join(page_numbers)))
             else:
                 with tag('p'):
                     text('Nothing found. Try again late!')
