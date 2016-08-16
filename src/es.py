@@ -193,30 +193,30 @@ def search(q):
     """
     es = es_connect()
 
-    is_library = es.indices.exists(index=ELASTICSEARCH_INDEX)
+    is_library = index_exist()
     if not is_library:
-        create_index(es)
-
-    body = {
-        "fields": ["title", "file_name"],
-        "query": {
-            "nested": {
-                "path": "content",
-                "query": {
-                    "match": {"content.text": q}
-                },
-                "inner_hits": {
-                    "fields": ["content.page_number"],
-                    "sort": [
-                        {"content.page_number": {"order": "asc"}}
-                    ]
+        return {'error': "index don't exist. can't search."}
+    else:
+        body = {
+            "fields": ["title", "file_name"],
+            "query": {
+                "nested": {
+                    "path": "content",
+                    "query": {
+                        "match": {"content.text": q}
+                    },
+                    "inner_hits": {
+                        "fields": ["content.page_number"],
+                        "sort": [
+                            {"content.page_number": {"order": "asc"}}
+                        ]
+                    }
                 }
             }
         }
-    }
 
-    results = es.search(index=ELASTICSEARCH_INDEX, body=body)
-    return results
+        results = es.search(index=ELASTICSEARCH_INDEX, body=body)
+        return results
 
 
 def es_connect():
