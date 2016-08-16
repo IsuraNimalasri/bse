@@ -18,44 +18,49 @@ def create_index():
     """
     es = es_connect()
 
-    create_index_data = es.indices.create(index=ELASTICSEARCH_INDEX)
+    is_library = index_exist()
+    if not is_library:
 
-    mapping = {
-        ELASTICSEARCH_DOC_TYPE: {
-            "properties": {
-                "file_name": {
-                    "store": "yes",
-                    "type": "string"
-                },
-                "title": {
-                    "store": "yes",
-                    "type": "string"
-                },
-                "content": {
-                    "type": "nested",
-                    "properties": {
-                        "page_number": {
-                            "store": "yes",
-                            "type": "integer"
-                        },
-                        "text": {
-                            "store": "yes",
-                            "type": "string"
+        create_index_data = es.indices.create(index=ELASTICSEARCH_INDEX)
+
+        mapping = {
+            ELASTICSEARCH_DOC_TYPE: {
+                "properties": {
+                    "file_name": {
+                        "store": "yes",
+                        "type": "string"
+                    },
+                    "title": {
+                        "store": "yes",
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "nested",
+                        "properties": {
+                            "page_number": {
+                                "store": "yes",
+                                "type": "integer"
+                            },
+                            "text": {
+                                "store": "yes",
+                                "type": "string"
+                            }
                         }
                     }
                 }
             }
         }
-    }
 
-    create_mapping_data = es.indices.put_mapping(doc_type=ELASTICSEARCH_DOC_TYPE, body=mapping)
+        create_mapping_data = es.indices.put_mapping(doc_type=ELASTICSEARCH_DOC_TYPE, body=mapping)
 
-    result = {
-        'create_index_data': create_index_data,
-        'create_mapping_data': create_mapping_data
-    }
+        result = {
+            'create_index_data': create_index_data,
+            'create_mapping_data': create_mapping_data
+        }
 
-    return result
+        return result
+    else:
+        return {'error': "index already exists. can't create."}
 
 
 def delete_index():
