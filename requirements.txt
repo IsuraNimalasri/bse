@@ -7,4 +7,4 @@ redis==2.10.5
 elasticsearch==2.3.0
 celery==3.1.23
 PyPDF2==1.26.0
-pdfminer.six==20160614ad
+pdfminer.six==20160614
