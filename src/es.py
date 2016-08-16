@@ -121,7 +121,7 @@ def add_book(file_path, book=None):
     count = count_items()['count']
     print('Books in DB: {}'.format(count))
 
-    if book:
+    if file_path == '':
         create_book_data = process_file(book)
     else:
         with open(file_path, 'rb') as f:
