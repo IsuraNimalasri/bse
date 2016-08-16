@@ -39,7 +39,7 @@ $(document).ready(function(){
             processData: false, // Don't process the files
             contentType: false, // Set content type to false as jQuery will tell the server its a query string request
             success: function(data, textStatus, jqXHR) {
-                    if (!data['result'].hasOwnProperty('error')) {
+                    if (!data.hasOwnProperty('error')) {
 
                         // console.log('data: ' + JSON.stringify(data));
 
@@ -49,11 +49,10 @@ $(document).ready(function(){
                         response_div.html(msg).fadeIn();
                     } else {
                         // Handle errors here
-                        console.log('textStatus: ' + textStatus);
-                        console.log('ERRORS: ' + data['result'].error);
+                        console.log('ERRORS: ' + JSON.stringify(data));
 
                         var msg = $('<div class="alert alert-danger" role="alert"></div>');
-                        msg.append("<p>" + 'ERRORS: ' + data['result'].error + "</p>");
+                        msg.append("<p>" + JSON.stringify(data) + "</p>");
 
                         response_div.html(msg).fadeIn();
                     }

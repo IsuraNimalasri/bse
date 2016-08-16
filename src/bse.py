@@ -95,7 +95,7 @@ class AdminResource(object):
             q = req.get_param('q')
             result = search(q)
 
-        resp.body = json.dumps({'result': result})
+        resp.body = json.dumps(result)
         resp.status = falcon.HTTP_200
 
 
