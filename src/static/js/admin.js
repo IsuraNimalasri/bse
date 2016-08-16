@@ -50,7 +50,7 @@ $(document).ready(function(){
                     } else {
                         // Handle errors here
                         console.log('textStatus: ' + textStatus);
-                        console.log('ERRORS: ' + data['result']error);
+                        console.log('ERRORS: ' + data['result'].error);
 
                         var msg = $('<div class="alert alert-danger" role="alert"></div>');
                         msg.append("<p>" + 'ERRORS: ' + data['result']error + "</p>");
