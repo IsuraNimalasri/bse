@@ -83,7 +83,7 @@ class AdminResource(object):
             book = req.get_param('book')
             file_path = save_file(book)
             path = {'path': file_path}
-            search_task.delay(path)
+            add_book.delay(path)
             result = {'msg': 'file add queued'}
         elif cmd == 'create':
             result = create_index()
