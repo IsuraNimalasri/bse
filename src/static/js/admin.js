@@ -17,7 +17,6 @@ $(document).ready(function(){
             data.append('book', value);
         });
 
-
         var cmd = $(this).find('input[hidden=hidden]').val()
         data.append('cmd', cmd);
 
@@ -28,7 +27,6 @@ $(document).ready(function(){
             var q = $(this).find('#inputQ').val();
             data.append('q', q);
         }
-
 
         var response_div = $(this).parent().parent().find('.container')
 //        console.log($(this).parent().parent().find('.container'));
@@ -64,7 +62,6 @@ $(document).ready(function(){
             error: function(jqXHR, textStatus, errorThrown) {
                     // Handle errors here
                     console.log('ERRORS: ' + textStatus);
-                    // STOP LOADING SPINNER
                 }
         });
     });
