@@ -83,7 +83,7 @@ class AdminResource(object):
         if cmd == 'add':
             book = req.get_param('book')
             print(book.filename)
-            result = add_book(book=book)
+            result = add_book('', book=book)
         elif cmd == 'create':
             result = create_index()
         elif cmd == 'delete':
