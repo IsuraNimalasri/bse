@@ -118,9 +118,6 @@ def add_book(file_path, book=None):
     if not is_library:
         create_index()
 
-    count = count_items()['count']
-    print('Books in DB: {}'.format(count))
-
     if file_path == '':
         create_book_data = process_file(book)
     else:
@@ -133,6 +130,9 @@ def add_book(file_path, book=None):
 def process_file(f):
 
     es = es_connect()
+
+    count = count_items()['count']
+    print('Books in DB: {}'.format(count))
 
     fname = basename(f.name)
     fmime = mimetypes.MimeTypes().guess_type(f.name)[0]
