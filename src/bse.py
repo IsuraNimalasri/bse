@@ -84,7 +84,7 @@ class AdminResource(object):
             file_path = save_file(book)
             path = {'path': file_path}
             add_book_task.delay(path)
-            result = {'msg': 'file add queued'}
+            result = {'msg': 'file putted in queue'}
         elif cmd == 'create':
             result = create_index()
         elif cmd == 'delete':

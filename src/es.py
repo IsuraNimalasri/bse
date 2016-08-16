@@ -199,6 +199,7 @@ def search(q):
                     },
                     "inner_hits": {
                         "fields": ["content.page_number"],
+                        "size": -1,
                         "sort": [
                             {"content.page_number": {"order": "asc"}}
                         ]
