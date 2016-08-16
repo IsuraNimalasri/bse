@@ -92,6 +92,7 @@ class AdminResource(object):
             result = count_items()
         elif cmd == 'search':
             q = req.get_param('q')
+            print(q)
             result = search(q)
 
         resp.body = json.dumps({'result': result})

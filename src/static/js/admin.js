@@ -13,12 +13,18 @@ $(document).ready(function(){
 
         // Create a formdata object and add the files
         var data = new FormData();
-        $.each(files, function(key, value)
-        {
+        $.each(files, function(key, value) {
             data.append('book', value);
         });
 
-        data.append('cmd', $(this).find('input[hidden=hidden]').val());
+
+        var cmd = $(this).find('input[hidden=hidden]').val()
+        data.append('cmd', cmd);
+
+        if (cmd === 'search') {
+            var q = $(this).find('#inputQuery').val();
+            data.append('q', q);
+        }
 
         var response_div = $(this).parent().parent().find('.container')
 //        console.log($(this).parent().parent().find('.container'));
