@@ -24,7 +24,11 @@ $(document).ready(function(){
         if (cmd === 'search') {
             var q = $(this).find('#inputQuery').val();
             data.append('q', q);
+        } else if (cmd === 'search_advanced') {
+            var q = $(this).find('#inputQ').val();
+            data.append('q', q);
         }
+
 
         var response_div = $(this).parent().parent().find('.container')
 //        console.log($(this).parent().parent().find('.container'));

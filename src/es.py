@@ -19,48 +19,51 @@ def create_index():
     es = es_connect()
 
     is_library = index_exist()
-    if not is_library:
+    if type(is_library) is bool:
+        if not is_library:
 
-        create_index_data = es.indices.create(index=ELASTICSEARCH_INDEX)
+            create_index_data = es.indices.create(index=ELASTICSEARCH_INDEX)
 
-        mapping = {
-            ELASTICSEARCH_DOC_TYPE: {
-                "properties": {
-                    "file_name": {
-                        "store": "yes",
-                        "type": "string"
-                    },
-                    "title": {
-                        "store": "yes",
-                        "type": "string"
-                    },
-                    "content": {
-                        "type": "nested",
-                        "properties": {
-                            "page_number": {
-                                "store": "yes",
-                                "type": "integer"
-                            },
-                            "text": {
-                                "store": "yes",
-                                "type": "string"
+            mapping = {
+                ELASTICSEARCH_DOC_TYPE: {
+                    "properties": {
+                        "file_name": {
+                            "store": "yes",
+                            "type": "string"
+                        },
+                        "title": {
+                            "store": "yes",
+                            "type": "string"
+                        },
+                        "content": {
+                            "type": "nested",
+                            "properties": {
+                                "page_number": {
+                                    "store": "yes",
+                                    "type": "integer"
+                                },
+                                "text": {
+                                    "store": "yes",
+                                    "type": "string"
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
-        create_mapping_data = es.indices.put_mapping(doc_type=ELASTICSEARCH_DOC_TYPE, body=mapping)
+            create_mapping_data = es.indices.put_mapping(doc_type=ELASTICSEARCH_DOC_TYPE, body=mapping)
 
-        result = {
-            'create_index_data': create_index_data,
-            'create_mapping_data': create_mapping_data
-        }
+            result = {
+                'create_index_data': create_index_data,
+                'create_mapping_data': create_mapping_data
+            }
 
-        return result
+            return result
+        else:
+            return {'error': "index already exists. can't create."}
     else:
-        return {'error': "index already exists. can't create."}
+        return is_library
 
 
 def delete_index():
@@ -73,10 +76,13 @@ def delete_index():
     es = es_connect()
 
     is_library = index_exist()
-    if is_library:
-        return es.indices.delete(index=ELASTICSEARCH_INDEX)
+    if type(is_library) is bool:
+        if is_library:
+            return es.indices.delete(index=ELASTICSEARCH_INDEX)
+        else:
+            return {'error': "index don't exist. can't delete."}
     else:
-        return {'error': "index don't exist. can't delete."}
+        return is_library
 
 
 def count_items():
@@ -89,17 +95,28 @@ def count_items():
     es = es_connect()
 
     is_library = index_exist()
-    if is_library:
-        return es.count(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE)
+    if type(is_library) is bool:
+        if is_library:
+            try:
+                result = es.count(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE)
+            except Exception as e:
+                result = {'error': str(e)}
+            return result
+        else:
+            return {'error': "index don't exist. can't count"}
     else:
-        return {'error': "index don't exist. can't count"}
+        return is_library
 
 
 def index_exist():
 
     es = es_connect()
 
-    return es.indices.exists(index=ELASTICSEARCH_INDEX)
+    try:
+        result = es.indices.exists(index=ELASTICSEARCH_INDEX)
+    except Exception as e:
+        result = {'error': str(e)}
+    return result
 
 
 def add_book(file_path):
@@ -186,30 +203,55 @@ def search(q):
     es = es_connect()
 
     is_library = index_exist()
-    if not is_library:
-        return {'error': "index don't exist. can't search."}
-    else:
-        body = {
-            "fields": ["title", "file_name"],
-            "query": {
-                "nested": {
-                    "path": "content",
-                    "query": {
-                        "match": {"content.text": q}
-                    },
-                    "inner_hits": {
-                        "fields": ["content.page_number"],
-                        "size": 1000000,
-                        "sort": [
-                            {"content.page_number": {"order": "asc"}}
-                        ]
+    if type(is_library) is bool:
+        if not is_library:
+            return {'error': "index don't exist. can't search."}
+        else:
+            body = {
+                "fields": ["title", "file_name"],
+                "query": {
+                    "nested": {
+                        "path": "content",
+                        "query": {
+                            "match": {"content.text": q}
+                        },
+                        "inner_hits": {
+                            "fields": ["content.page_number"],
+                            "size": 1000000,
+                            "sort": [
+                                {"content.page_number": {"order": "asc"}}
+                            ]
+                        }
                     }
                 }
             }
-        }
 
-        results = es.search(index=ELASTICSEARCH_INDEX, body=body)
-        return results
+            results = es.search(index=ELASTICSEARCH_INDEX, body=body)
+            return results
+    else:
+        return is_library
+
+
+def search_advanced(q):
+    """
+    Perform advanced search in index. Before searching check if index exist. If not then create it.
+
+    :param q: search query structure
+    :type q: str
+    :return: response data from es
+    :rtype: dict
+    """
+    es = es_connect()
+
+    is_library = index_exist()
+    if type(is_library) is bool:
+        if is_library:
+            results = es.search(index=ELASTICSEARCH_INDEX, body=q)
+            return results
+        else:
+            return {'error': "index don't exist. can't search."}
+    else:
+        return is_library
 
 
 def es_connect():

@@ -4,8 +4,8 @@ import falcon
 from falcon_multipart.middleware import MultipartMiddleware
 
 from tasks import search_task, add_book_task
-from utils import (validate_email, extract_username, save_file)
-from es import (create_index, delete_index, count_items, add_book, search)
+from utils import (validate_email, extract_username, save_file, delete_file)
+from es import (create_index, delete_index, count_items, add_book, search, search_advanced)
 
 
 class BSEResource(object):
@@ -83,8 +83,12 @@ class AdminResource(object):
             book = req.get_param('book')
             file_path = save_file(book)
             path = {'path': file_path}
-            add_book_task.delay(path)
-            result = {'msg': 'file putted in queue'}
+            try:
+                add_book_task.delay(path)
+                result = {'msg': 'file putted in queue'}
+            except Exception as e:
+                result = {'error': str(e)}
+                delete_file(file_path)
         elif cmd == 'create':
             result = create_index()
         elif cmd == 'delete':
@@ -94,6 +98,9 @@ class AdminResource(object):
         elif cmd == 'search':
             q = req.get_param('q')
             result = search(q)
+        elif cmd == 'search_advanced':
+            q = req.get_param('q')
+            result = search_advanced(q)
 
         resp.body = json.dumps(result)
         resp.status = falcon.HTTP_200

@@ -15,8 +15,10 @@
 </head>
 <body>
     <div class="container">
-        <div class="center-block">
-            <h1>Books Search Engine Admin</h1>
+        <div class="row">
+            <div class="center-block">
+                <h1>Books Search Engine Admin</h1>
+            </div>
 
             <div class="panel panel-default">
                 <div class="panel-heading">Create index</div>
@@ -26,7 +28,7 @@
                         <button type="submit" class="btn btn-primary">Create</button>
                     </form>
                 </div>
-                <div class="container" id="form_create_response"></div>
+                <div class="container"></div>
             </div>
 
             <div class="panel panel-default">
@@ -42,7 +44,7 @@
                         <button type="submit" class="btn btn-primary">Upload</button>
                     </form>
                 </div>
-                <div class="container" id="form_add_response"></div>
+                <div class="container"></div>
             </div>
 
             <div class="panel panel-default">
@@ -53,7 +55,7 @@
                         <button type="submit" class="btn btn-primary">Count</button>
                     </form>
                 </div>
-                <div class="container" id="form_count_response"></div>
+                <div class="container"></div>
             </div>
 
             <div class="panel panel-default">
@@ -68,7 +70,23 @@
                         <button type="submit" class="btn btn-primary">Search</button>
                     </form>
                 </div>
-                <div class="container" id="form_search_response"></div>
+                <div class="container"></div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Search items in index</div>
+                <div class="panel-body">
+                    <form id="search_advanced" method="POST">
+                        <input type="text" hidden="hidden" name="cmd" value="search_advanced">
+                        <div class="form-group">
+                            <label for="inputQ" class="sr-only">Query Builder</label>
+                            <!--<input type="text" name="q" value="" id="inputQ" class="form-control" placeholder="What we whill search in books?" required>-->
+                            <textarea name="q" id="inputQ" class="form-control" rows="3" placeholder="'query': {'match_all': {}}" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </form>
+                </div>
+                <div class="container"></div>
             </div>
 
             <div class="panel panel-danger">
@@ -79,7 +97,7 @@
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </div>
-                <div class="container" id="form_delete_response"></div>
+                <div class="container"></div>
             </div>
         </div>
     </div> <!-- /container -->
