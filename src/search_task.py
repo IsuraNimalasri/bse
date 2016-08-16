@@ -52,7 +52,6 @@ def send_email(result, task_data):
     # you == recipient's email address
     me = EMAIL_LOGIN
     you = task_data['email']
-    # you = "sasha.pazuyk@gmail.com"
 
     # Create message container - the correct MIME type is multipart/alternative.
     msg = MIMEMultipart('alternative')
@@ -60,20 +59,16 @@ def send_email(result, task_data):
     msg['From'] = me
     msg['To'] = you
 
+    # Create the body of the message (a plain-text and an HTML version).
     html = format_result(task_data['q'], result)
 
-    # Create the body of the message (a plain-text and an HTML version).
-    # text = "Hi!\nHow are you?\nHere is the link you wanted:\nhttps://www.python.org"
+    # Record the MIME type text/html.
+    part = MIMEText(html, 'html')
 
-    # Record the MIME types of both parts - text/plain and text/html.
-    # part1 = MIMEText(text, 'plain')
-    part2 = MIMEText(html, 'html')
-
-    # Attach parts into message container.
+    # Attach part into message container.
     # According to RFC 2046, the last part of a multipart message, in this case
     # the HTML message, is best and preferred.
-    # msg.attach(part1)
-    msg.attach(part2)
+    msg.attach(part)
 
     # Send the message via local SMTP server.
     server = smtplib.SMTP(host=EMAIL_SMTP_HOST, port=EMAIL_SMTP_PORT)
