@@ -67,7 +67,11 @@ def delete_index():
     """
     es = es_connect()
 
-    return es.indices.delete(index=ELASTICSEARCH_INDEX)
+    is_library = index_exist()
+    if is_library:
+        return es.indices.delete(index=ELASTICSEARCH_INDEX)
+    else:
+        return {'error': "index don't exist. can't delete."}
 
 
 def count_items():
@@ -79,7 +83,18 @@ def count_items():
     """
     es = es_connect()
 
-    return es.count(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE)
+    is_library = index_exist()
+    if is_library:
+        return es.count(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE)
+    else:
+        return {'error': "index don't exist. can't count"}
+
+
+def index_exist():
+
+    es = es_connect()
+
+    return es.indices.exists(index=ELASTICSEARCH_INDEX)
 
 
 def add_book(file_path, book=None):
@@ -93,9 +108,8 @@ def add_book(file_path, book=None):
     :return: response data from es
     :rtype: dict
     """
-    es = es_connect()
 
-    is_library = es.indices.exists(index=ELASTICSEARCH_INDEX)
+    is_library = index_exist()
     if not is_library:
         create_index()
 
