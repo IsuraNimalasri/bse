@@ -49,10 +49,11 @@ $(document).ready(function(){
                         response_div.html(msg).fadeIn();
                     } else {
                         // Handle errors here
-                        console.log('ERRORS: ' + data.error);
+                        console.log('textStatus: ' + textStatus);
+                        console.log('ERRORS: ' + data['result']error);
 
                         var msg = $('<div class="alert alert-danger" role="alert"></div>');
-                        msg.append("<p>" + 'ERRORS: ' + data.error + "</p>");
+                        msg.append("<p>" + 'ERRORS: ' + data['result']error + "</p>");
 
                         response_div.html(msg).fadeIn();
                     }
