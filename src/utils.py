@@ -1,4 +1,5 @@
 import re
+import os
 
 
 def validate_email(email):
@@ -33,3 +34,15 @@ def extract_username(email):
     username
     """
     return email[:email.index('@')]
+
+
+def save_file(book):
+    print(book.filename)
+    raw = book.file.read()
+    with open(book.filename, 'wb') as f:
+        f.write(raw)
+        return os.path.abspath(book.filename)
+
+
+def delete_file(f):
+    os.remove(f)

@@ -3,8 +3,8 @@ import json
 import falcon
 from falcon_multipart.middleware import MultipartMiddleware
 
-from tasks import search_task
-from utils import (validate_email, extract_username)
+from tasks import search_task, add_book_task
+from utils import (validate_email, extract_username, save_file)
 from es import (create_index, delete_index, count_items, add_book, search)
 
 
@@ -77,13 +77,14 @@ class AdminResource(object):
 
     def on_post(self, req, resp):
         cmd = req.get_param('cmd')
-        print(cmd)
 
         result = {}
         if cmd == 'add':
             book = req.get_param('book')
-            print(book.filename)
-            result = add_book('', book=book)
+            file_path = save_file(book)
+            path = {'path': file_path}
+            search_task.delay(path)
+            result = {'msg': 'file add queued'}
         elif cmd == 'create':
             result = create_index()
         elif cmd == 'delete':
@@ -92,7 +93,6 @@ class AdminResource(object):
             result = count_items()
         elif cmd == 'search':
             q = req.get_param('q')
-            print(q)
             result = search(q)
 
         resp.body = json.dumps({'result': result})

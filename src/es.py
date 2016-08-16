@@ -102,14 +102,12 @@ def index_exist():
     return es.indices.exists(index=ELASTICSEARCH_INDEX)
 
 
-def add_book(file_path, book=None):
+def add_book(file_path):
     """
     Add book to index. Before adding check if index exist. If not then create it.
 
     :param file_path: path to file
     :type file_path: str
-    :param book: book object from request
-    :type book: file
     :return: response data from es
     :rtype: dict
     """
@@ -118,56 +116,50 @@ def add_book(file_path, book=None):
     if not is_library:
         create_index()
 
-    if file_path == '':
-        create_book_data = process_file(book)
-    else:
-        with open(file_path, 'rb') as f:
-            create_book_data = process_file(f)
+    create_book_data = {}
 
-    return create_book_data
+    with open(file_path, 'rb') as f:
 
+        count = count_items()['count']
+        print('Books in DB: {}'.format(count))
 
-def process_file(f):
+        fname = basename(f.name)
+        fmime = mimetypes.MimeTypes().guess_type(f.name)[0]
 
-    es = es_connect()
+        if fmime == 'application/pdf':
+            pdf = PyPDF2.PdfFileReader(f)
+            if not pdf.isEncrypted:
 
-    count = count_items()['count']
-    print('Books in DB: {}'.format(count))
+                pages = pdf.numPages
+                print('Pages in book: {}'.format(pages))
 
-    fname = basename(f.name)
-    fmime = mimetypes.MimeTypes().guess_type(f.name)[0]
+                content = []
+                for page_number in range(pages):
+                    page = pdf.getPage(page_number)
+                    text = page.extractText()
 
-    if fmime == 'application/pdf':
-        pdf = PyPDF2.PdfFileReader(f)
-        if not pdf.isEncrypted:
+                    book_page = {
+                        'page_number': page_number,
+                        'text': text
+                    }
 
-            pages = pdf.numPages
-            print('Pages in book: {}'.format(pages))
+                    content.append(book_page)
 
-            content = []
-            for page_number in range(pages):
-                page = pdf.getPage(page_number)
-                text = page.extractText()
+                title = pdf.getDocumentInfo().title
 
-                book_page = {
-                    'page_number': page_number,
-                    'text': text
+                doc = {
+                    'file_name': fname,
+                    'title': title,
+                    'content': content
                 }
 
-                content.append(book_page)
+                es = es_connect()
 
-            title = pdf.getDocumentInfo().title
+                create_book_data = es.create(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE, id=count,
+                                             body=doc)
+                es.indices.refresh(index=ELASTICSEARCH_INDEX)
 
-            doc = {
-                'file_name': fname,
-                'title': title,
-                'content': content
-            }
-
-            create_book_data = es.create(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE, id=count, body=doc)
-            es.indices.refresh(index=ELASTICSEARCH_INDEX)
-
-            return create_book_data
+    return create_book_data
 
 
 def add_books_from_folder(folder_path):
