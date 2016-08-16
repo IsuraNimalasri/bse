@@ -20,7 +20,8 @@ $(document).ready(function(){
 
         data.append('cmd', $(this).find('input[hidden=hidden]').val());
 
-        var response_div = $(this).parent().last();
+        var response_div = $(this).parent().parent().find('.container')
+//        console.log($(this).parent().parent().find('.container'));
 
         $.ajax({
             url: '/admin',
