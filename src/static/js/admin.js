@@ -53,7 +53,7 @@ $(document).ready(function(){
                         console.log('ERRORS: ' + data['result'].error);
 
                         var msg = $('<div class="alert alert-danger" role="alert"></div>');
-                        msg.append("<p>" + 'ERRORS: ' + data['result']error + "</p>");
+                        msg.append("<p>" + 'ERRORS: ' + data['result'].error + "</p>");
 
                         response_div.html(msg).fadeIn();
                     }
