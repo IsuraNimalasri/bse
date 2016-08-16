@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    $('form').on('submit', function(event) {
+    $('form#main').on('submit', function(event) {
         event.preventDefault();
         var form = $('form');
         var formdiv =  $('.form');
@@ -10,7 +10,7 @@ $(document).ready(function(){
 //            contentType: 'application/json',
             data: JSON.stringify(form.serializeArray()),
             timeout: 31000,
-            success: function(response){
+            success: function(response, textStatus){
                     if (response.is_e) {
                         var msg = $('<div class="alert alert-danger" role="alert"></div>');
                         msg.append(response.e);

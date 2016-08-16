@@ -1,18 +1,19 @@
 import json
-import re
 
 import falcon
+from falcon_multipart.middleware import MultipartMiddleware
 
 from tasks import search_task
+from utils import (validate_email, extract_username)
+from es import (create_index, delete_index, count_items, add_book, search)
 
 
-# Falcon follows the REST architectural style, meaning (among
-# other things) that you think in terms of resources and state
-# transitions, which map to HTTP verbs.
 class BSEResource(object):
+    """
+    Books Search Engine main class
+    """
 
     def on_get(self, req, resp):
-        """Handles GET requests"""
         resp.status = falcon.HTTP_200  # This is the default status
         resp.content_type = 'text/html'
         with open('./templates/base.html', 'r') as f:
@@ -23,7 +24,6 @@ class BSEResource(object):
         resp.body = html_template
 
     def on_post(self, req, resp):
-        """Handles POST requests"""
         try:
             raw_json = req.stream.read().decode("utf-8")
         except Exception as ex:
@@ -54,34 +54,57 @@ class BSEResource(object):
             reso['username'] = extract_username(email)
             reso['email'] = email
 
-            enqueue_task(reqo)
+            search_task.delay(reqo)
 
         resp.body = json.dumps(reso)
         resp.status = falcon.HTTP_200
 
 
-def enqueue_task(task_data):
+class AdminResource(object):
+    """
+    Books Search Engine admin class
+    """
 
-    search_task.delay(task_data)
+    def on_get(self, req, resp):
+        resp.status = falcon.HTTP_200  # This is the default status
+        resp.content_type = 'text/html'
+        with open('./templates/admin.html', 'r') as f:
+            html_template = f.read()
+        with open('./static/js/admin.js', 'r') as f:
+            js_script = f.read()
+        html_template = html_template.replace("<script></script>", "<script>" + js_script + "</script>")
+        resp.body = html_template
 
+    def on_post(self, req, resp):
+        cmd = req.get_param('cmd')
+        print(cmd)
 
-def validate_email(email):
-    match = re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$',
-                     email)
-    if match:
-        return True
-    return False
+        result = {}
+        if cmd == 'add':
+            book = req.get_param('book')
+            print(book.filename)
+            result = add_book(book=book)
+        elif cmd == 'create':
+            result = create_index()
+        elif cmd == 'delete':
+            result = delete_index()
+        elif cmd == 'count':
+            result = count_items()
+        elif cmd == 'search':
+            q = req.get_param('q')
+            result = search(q)
 
-
-def extract_username(email):
-    return email[:email.index('@')]
+        resp.body = json.dumps({'result': result})
+        resp.status = falcon.HTTP_200
 
 
 # falcon.API instances are callable WSGI apps
-app = falcon.API()
+app = falcon.API(middleware=[MultipartMiddleware()])
 
 # Resources are represented by long-lived class instances
 bse = BSEResource()
+adm = AdminResource()
 
 # things will handle all requests to the '/things' URL path
 app.add_route('/', bse)
+app.add_route('/admin', adm)

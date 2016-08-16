@@ -9,9 +9,16 @@ import PyPDF2
 from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_TIMEOUT, ELASTICSEARCH_INDEX, ELASTICSEARCH_DOC_TYPE)
 
 
-def create_index(es):
+def create_index():
+    """
+    Create index and mapping.
 
-    es.indices.create(index=ELASTICSEARCH_INDEX)
+    :return: response data from es
+    :rtype: dict
+    """
+    es = es_connect()
+
+    create_index_data = es.indices.create(index=ELASTICSEARCH_INDEX)
 
     mapping = {
         ELASTICSEARCH_DOC_TYPE: {
@@ -41,60 +48,131 @@ def create_index(es):
         }
     }
 
-    es.indices.put_mapping(doc_type=ELASTICSEARCH_DOC_TYPE, body=mapping)
+    create_mapping_data = es.indices.put_mapping(doc_type=ELASTICSEARCH_DOC_TYPE, body=mapping)
+
+    result = {
+        'create_index_data': create_index_data,
+        'create_mapping_data': create_mapping_data
+    }
+
+    return result
 
 
-def add_book(es, file_path):
+def delete_index():
+    """
+    Delete index.
+
+    :return: response data from es
+    :rtype: dict
+    """
+    es = es_connect()
+
+    return es.indices.delete(index=ELASTICSEARCH_INDEX)
+
+
+def count_items():
+    """
+    Count items in index.
+
+    :return: response data from es
+    :rtype: dict
+    """
+    es = es_connect()
+
+    return es.count(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE)
+
+
+def add_book(file_path, book=None):
+    """
+    Add book to index. Before adding check if index exist. If not then create it.
+
+    :param file_path: path to file
+    :type file_path: str
+    :param book: book object from request
+    :type book: file
+    :return: response data from es
+    :rtype: dict
+    """
+    es = es_connect()
 
     is_library = es.indices.exists(index=ELASTICSEARCH_INDEX)
     if not is_library:
-        create_index(es)
+        create_index()
 
-    count = es.count(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE)['count']
-    print(count)
+    count = count_items()['count']
+    print('Books in DB: {}'.format(count))
 
-    with open(file_path, 'rb') as f:
-        fname = basename(f.name)
-        fmime = mimetypes.MimeTypes().guess_type(f.name)[0]
+    if book:
+        create_book_data = process_file(book)
+    else:
+        with open(file_path, 'rb') as f:
+            create_book_data = process_file(f)
 
-        if fmime == 'application/pdf':
-            pdf = PyPDF2.PdfFileReader(f)
-            if not pdf.isEncrypted:
+    return create_book_data
 
-                pages = pdf.numPages
-                print(pages)
 
-                content = []
-                for page_number in range(pages):
-                    page = pdf.getPage(page_number)
-                    text = page.extractText()
+def process_file(f):
 
-                    book_page = {
-                        'page_number': page_number,
-                        'text': text
-                    }
+    es = es_connect()
 
-                    content.append(book_page)
+    fname = basename(f.name)
+    fmime = mimetypes.MimeTypes().guess_type(f.name)[0]
 
-                title = pdf.getDocumentInfo().title
+    if fmime == 'application/pdf':
+        pdf = PyPDF2.PdfFileReader(f)
+        if not pdf.isEncrypted:
 
-                doc = {
-                    'file_name': fname,
-                    'title': title,
-                    'content': content
+            pages = pdf.numPages
+            print('Pages in book: {}'.format(pages))
+
+            content = []
+            for page_number in range(pages):
+                page = pdf.getPage(page_number)
+                text = page.extractText()
+
+                book_page = {
+                    'page_number': page_number,
+                    'text': text
                 }
 
-                es.create(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE, id=count, body=doc)
-                es.indices.refresh(index=ELASTICSEARCH_INDEX)
+                content.append(book_page)
+
+            title = pdf.getDocumentInfo().title
+
+            doc = {
+                'file_name': fname,
+                'title': title,
+                'content': content
+            }
+
+            create_book_data = es.create(index=ELASTICSEARCH_INDEX, doc_type=ELASTICSEARCH_DOC_TYPE, id=count, body=doc)
+            es.indices.refresh(index=ELASTICSEARCH_INDEX)
+
+            return create_book_data
 
 
-def add_books_from_folder(es, folder_path):
+def add_books_from_folder(folder_path):
+    """
+    Add books from specified folder.
+
+    :param folder_path: path to file
+    :type folder_path: str
+    """
     files_path = [join(folder_path, f) for f in listdir(folder_path) if isfile(join(folder_path, f))]
     for file_path in files_path:
-        add_book(es, file_path)
+        add_book(file_path)
 
 
-def search(es, q):
+def search(q):
+    """
+    Perform search in index. Before searching check if index exist. If not then create it.
+
+    :param q: search query
+    :type q: str
+    :return: response data from es
+    :rtype: dict
+    """
+    es = es_connect()
 
     is_library = es.indices.exists(index=ELASTICSEARCH_INDEX)
     if not is_library:
@@ -122,13 +200,21 @@ def search(es, q):
     return results
 
 
-if __name__ == '__main__':
+def es_connect():
+    """
+    Return Elasticsearch connection
 
-    es_ = Elasticsearch(ELASTICSEARCH_HOSTS, timeout=ELASTICSEARCH_TIMEOUT)
+    :return: Elasticsearch class
+    :rtype: :class: Elasticsearch
+    """
+    return Elasticsearch(ELASTICSEARCH_HOSTS, timeout=ELASTICSEARCH_TIMEOUT)
+
+
+if __name__ == '__main__':
 
     if len(sys.argv) >= 2:
         path = sys.argv[1]
 
-        add_books_from_folder(es_, path)
+        add_books_from_folder(path)
     else:
         print('Provide 1 argument as "/path/to/folder/".')
