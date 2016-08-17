@@ -14,4 +14,3 @@ ELASTICSEARCH_DOC_TYPE = 'book'
 LOG_PATH = '.'
 LOG_FILENAME = 'requests'
 LOG_FORMAT = '%(asctime)s | %(message)s'
-

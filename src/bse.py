@@ -82,9 +82,9 @@ class AdminResource(object):
         if cmd == 'add':
             book = req.get_param('book')
             file_path = save_file(book)
-            path = {'path': file_path}
+            task_data = {'path': file_path}
             try:
-                add_book_task.delay(path)
+                add_book_task.delay(task_data)
                 result = {'msg': 'file putted in queue'}
             except Exception as e:
                 result = {'error': str(e)}

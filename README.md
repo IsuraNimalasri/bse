@@ -21,7 +21,7 @@ For Python requirements see
 Build
 -----
 
-Specify path to folder with books by replacing `/path/to/folder/` in docker-compose.yml
+_(optional)_ Specify path to folder with books by replacing `/path/to/folder/` in docker-compose.yml
 
 ```
 ...
@@ -39,6 +39,7 @@ Specify path to folder with books by replacing `/path/to/folder/` in docker-comp
 
 ...
 ```
+
 Run build command
 
 ```
@@ -54,10 +55,47 @@ Run composition
 docker-compose up
 ```
 
-Add books to Elasticsearch
+_(optional)_ Add books to Elasticsearch 
 
 ```
 docker exec bse_web_1 /bin/bash -c 'python es.py /opt/books/'
+```
+
+Go to admin page and create index, add books, perform advanced search etc.
+
+```
+http://localhost:8000/admin
+```
+
+Example of advanced search query (Don't forget to replace query value **"python"** on your own):
+
+```
+{
+    "fields": ["title", "file_name"],
+    "query": {
+        "nested": {
+            "path": "content",
+            "query": {
+                "match": {"content.text": "python"}
+            },
+            "inner_hits": {
+                "fields": ["content.page_number"],
+                "size": 1000000,
+                "sort": [
+                    {"content.page_number": {"order": "asc"}}
+                ],
+                "highlight": {
+                    "number_of_fragments": 10000,
+                    "pre_tags": ["<b>"],
+                    "post_tags": ["</b>"],
+                    "fields": {
+                        "content.text": {}
+                    }
+                }
+            }
+        }
+    }
+}
 ```
 
 Go to page and do search
