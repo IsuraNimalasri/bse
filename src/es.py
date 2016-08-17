@@ -2,9 +2,15 @@ from os import listdir
 from os.path import isfile, join, basename
 import sys
 import mimetypes
+from io import StringIO
 
 from elasticsearch import Elasticsearch
 import PyPDF2
+
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfpage import PDFPage
 
 
 from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_TIMEOUT, ELASTICSEARCH_INDEX, ELASTICSEARCH_DOC_TYPE)
@@ -120,6 +126,26 @@ def index_exist():
     return result
 
 
+def extract_all_text(infile, pages=None):
+    if not pages:
+        pagenums = set()
+    else:
+        pagenums = set(pages)
+
+    output = StringIO()
+    manager = PDFResourceManager()
+    converter = TextConverter(manager, output, laparams=LAParams())
+    interpreter = PDFPageInterpreter(manager, converter)
+
+    for page in PDFPage.get_pages(infile, pagenums):
+        interpreter.process_page(page)
+
+    converter.close()
+    text = output.getvalue()
+    output.close()
+    return text
+
+
 def add_book(file_path):
     """
     Add book to index. Before adding check if index exist. If not then create it.
@@ -151,10 +177,15 @@ def add_book(file_path):
                 pages = pdf.numPages
                 print('Pages in book: {}'.format(pages))
 
+                title = pdf.getDocumentInfo().title
+
+                all_text = extract_all_text(f)
                 content = []
+                b = 0
                 for page_number in range(pages):
-                    page = pdf.getPage(page_number)
-                    text = page.extractText()
+                    e = all_text.find('\f', b)
+                    text = all_text[b:e]
+                    b = e + 1
 
                     book_page = {
                         'page_number': page_number,
@@ -162,8 +193,6 @@ def add_book(file_path):
                     }
 
                     content.append(book_page)
-
-                title = pdf.getDocumentInfo().title
 
                 doc = {
                     'file_name': fname,
