@@ -1,4 +1,5 @@
 falcon==1.0.0
+falcon_multipart==0.1.0
 gunicorn==19.6.0
 yattag==1.6.0
 retask==1.0

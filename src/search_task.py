@@ -3,13 +3,10 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from elasticsearch import Elasticsearch
-
 from yattag import Doc
 
 from es import search
-from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_TIMEOUT,
-                     EMAIL_LOGIN, EMAIL_PASS, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT)
+from configs import (EMAIL_LOGIN, EMAIL_PASS, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT)
 
 
 def format_result(q, result):
@@ -52,7 +49,6 @@ def send_email(result, task_data):
     # you == recipient's email address
     me = EMAIL_LOGIN
     you = task_data['email']
-    # you = "sasha.pazuyk@gmail.com"
 
     # Create message container - the correct MIME type is multipart/alternative.
     msg = MIMEMultipart('alternative')
@@ -60,20 +56,16 @@ def send_email(result, task_data):
     msg['From'] = me
     msg['To'] = you
 
+    # Create the body of the message (a plain-text and an HTML version).
     html = format_result(task_data['q'], result)
 
-    # Create the body of the message (a plain-text and an HTML version).
-    # text = "Hi!\nHow are you?\nHere is the link you wanted:\nhttps://www.python.org"
+    # Record the MIME type text/html.
+    part = MIMEText(html, 'html')
 
-    # Record the MIME types of both parts - text/plain and text/html.
-    # part1 = MIMEText(text, 'plain')
-    part2 = MIMEText(html, 'html')
-
-    # Attach parts into message container.
+    # Attach part into message container.
     # According to RFC 2046, the last part of a multipart message, in this case
     # the HTML message, is best and preferred.
-    # msg.attach(part1)
-    msg.attach(part2)
+    msg.attach(part)
 
     # Send the message via local SMTP server.
     server = smtplib.SMTP(host=EMAIL_SMTP_HOST, port=EMAIL_SMTP_PORT)
@@ -98,9 +90,7 @@ def log_results(results, task_data):
 
 def do_task(task_data):
 
-    es = Elasticsearch(ELASTICSEARCH_HOSTS, timeout=ELASTICSEARCH_TIMEOUT)
-
-    results = search(es, task_data['q'])
+    results = search(task_data['q'])
     send_email(results, task_data)
     log_task_data = log_results(results, task_data)
     return log_task_data

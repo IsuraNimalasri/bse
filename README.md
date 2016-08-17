@@ -3,8 +3,9 @@ Books Search Engine
 
 Books search engine powered by Elasticserch.
 
-Built on Falcon minimalistic Python framework.
+Built on Falcon minimalistic Python framework and Celery task queue.
 
+Packed in Docker container.
 
 Requirements
 ------------
@@ -15,7 +16,7 @@ For Python requirements see
 ./requirements.txt
 ```
 
-**Works only with books in `PDF` format!**
+**Works only with books in `PDF` format!** May not work with non-latin alphabet. 
 
 Build
 -----
@@ -74,7 +75,7 @@ docker exec bse_web_1 cat requests.log
 Cleanup
 
 ```
-docker-compose down && docker rmi bse_web bse_celery
+docker-compose down --rmi all
 ```
 
 License
