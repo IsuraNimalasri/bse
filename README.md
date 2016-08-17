@@ -21,7 +21,7 @@ For Python requirements see
 Build
 -----
 
-Specify path to folder with books by replacing `/path/to/folder/` in docker-compose.yml
+_(optional)_ Specify path to folder with books by replacing `/path/to/folder/` in docker-compose.yml
 
 ```
 ...
@@ -39,6 +39,7 @@ Specify path to folder with books by replacing `/path/to/folder/` in docker-comp
 
 ...
 ```
+
 Run build command
 
 ```
@@ -54,10 +55,16 @@ Run composition
 docker-compose up
 ```
 
-Add books to Elasticsearch
+_(optional)_ Add books to Elasticsearch 
 
 ```
 docker exec bse_web_1 /bin/bash -c 'python es.py /opt/books/'
+```
+
+Go to admin page and create index or add book etc.
+
+```
+http://localhost:8000/admin
 ```
 
 Go to page and do search

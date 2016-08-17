@@ -10,6 +10,16 @@ from configs import (EMAIL_LOGIN, EMAIL_PASS, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT)
 
 
 def format_result(q, result):
+    """
+    Format result in html string for email.
+
+    :param q: query string
+    :param result: structure with search results
+    :rtype result: dict
+    :return: html formatted layout for email
+    :rtype: str
+    """
+
     doc, tag, text = Doc().tagtext()
 
     doc.asis('<!DOCTYPE html>')
@@ -44,6 +54,14 @@ def format_result(q, result):
 
 
 def send_email(result, task_data):
+    """
+    Send email with formatted results.
+
+    :param result: search result
+    :type result: dict
+    :param task_data: task data
+    :type task_data: dict
+    """
 
     # me == my email address
     # you == recipient's email address
@@ -77,18 +95,36 @@ def send_email(result, task_data):
     server.close()
 
 
-def log_results(results, task_data):
+def log_results(result, task_data):
+    """
+    Form log task data.
+
+    :param result: search result
+    :type result: dict
+    :param task_data: task data
+    :type task_data: dict
+    :return: data structure for log task
+    :rtype: dict
+    """
 
     log_task_data = {
         'q': task_data['q'],
         'email': task_data['email'],
-        'took': results['took']
+        'took': result['took']
     }
 
     return log_task_data
 
 
 def do_task(task_data):
+    """
+    Search, send result to email and run log task task.
+
+    :param task_data: data to log
+    :type task_data: dict
+    :return: data structure for log task
+    :rtype: dict
+    """
 
     results = search(task_data['q'])
     send_email(results, task_data)
