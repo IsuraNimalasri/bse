@@ -3,13 +3,10 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from elasticsearch import Elasticsearch
-
 from yattag import Doc
 
 from es import search
-from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_TIMEOUT,
-                     EMAIL_LOGIN, EMAIL_PASS, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT)
+from configs import (EMAIL_LOGIN, EMAIL_PASS, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT)
 
 
 def format_result(q, result):
@@ -93,9 +90,7 @@ def log_results(results, task_data):
 
 def do_task(task_data):
 
-    es = Elasticsearch(ELASTICSEARCH_HOSTS, timeout=ELASTICSEARCH_TIMEOUT)
-
-    results = search(es, task_data['q'])
+    results = search(task_data['q'])
     send_email(results, task_data)
     log_task_data = log_results(results, task_data)
     return log_task_data
