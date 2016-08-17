@@ -4,6 +4,13 @@ from configs import (LOG_PATH, LOG_FILENAME, LOG_FORMAT)
 
 
 def log_task(task_data):
+    """
+    Write log to file.
+
+    :param task_data: data to log
+    :type task_data: dict
+    """
+
     log_formatter = logging.Formatter(LOG_FORMAT)
     log = logging.getLogger()
 
@@ -19,4 +26,10 @@ def log_task(task_data):
 
 
 def do_task(task_data):
+    """
+    Write log task
+
+    :param task_data: data to log
+    :type task_data: dict
+    """
     log_task(task_data)
