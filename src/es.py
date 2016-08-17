@@ -5,9 +5,7 @@ import mimetypes
 
 from elasticsearch import Elasticsearch
 import PyPDF2
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfpage import PDFPage
+
 
 from configs import (ELASTICSEARCH_HOSTS, ELASTICSEARCH_TIMEOUT, ELASTICSEARCH_INDEX, ELASTICSEARCH_DOC_TYPE)
 
@@ -147,15 +145,6 @@ def add_book(file_path):
         fmime = mimetypes.MimeTypes().guess_type(f.name)[0]
 
         if fmime == 'application/pdf':
-            parser = PDFParser(f)
-            document = PDFDocument(parser)
-
-            toc = []
-            for (level, title, dest, a, structelem) in document.get_outlines():
-                toc.append((level, title, dest, a, structelem))
-
-            print(toc)
-
             pdf = PyPDF2.PdfFileReader(f)
             if not pdf.isEncrypted:
 
