@@ -20,84 +20,98 @@
                 <h1>Books Search Engine Admin</h1>
             </div>
 
-            <div class="panel panel-default">
-                <div class="panel-heading">Create index</div>
-                <div class="panel-body">
-                    <form id="create" method="POST">
-                        <input type="text" hidden="hidden" name="cmd" value="create">
-                        <button type="submit" class="btn btn-primary">Create</button>
-                    </form>
-                </div>
-                <div class="container"></div>
-            </div>
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist" style="margin-bottom: 15px;">
+                <li role="presentation" class="active"><a href="#books" aria-controls="books" role="tab" data-toggle="tab">Books</a></li>
+                <li role="presentation"><a href="#searchs" aria-controls="search" role="tab" data-toggle="tab">Search</a></li>
+                <li role="presentation"><a href="#indexs" aria-controls="profile" role="tab" data-toggle="tab">Index</a></li>
+            </ul>
 
-            <div class="panel panel-default">
-                <div class="panel-heading">Add book</div>
-                <div class="panel-body">
-                    <form id="add" method="POST">
-                        <input type="text" hidden="hidden" name="cmd" value="add">
-                        <div class="form-group">
-                            <label for="book">Book file</label>
-                            <input type="file" id="book" name="book" required>
-                            <p class="help-block">Specify book in PDF file format.</p>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="books">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Add book</div>
+                        <div class="panel-body">
+                            <form id="add" method="POST">
+                                <input type="text" hidden="hidden" name="cmd" value="add">
+                                <div class="form-group">
+                                    <label for="book">Book file</label>
+                                    <input type="file" id="book" name="book" required>
+                                    <p class="help-block">Specify book in PDF file format.</p>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Upload</button>
+                            </form>
                         </div>
-                        <button type="submit" class="btn btn-primary">Upload</button>
-                    </form>
-                </div>
-                <div class="container"></div>
-            </div>
+                        <div class="container"></div>
+                    </div>
 
-            <div class="panel panel-default">
-                <div class="panel-heading">Count items in index</div>
-                <div class="panel-body">
-                    <form id="count" method="POST">
-                        <input type="text" hidden="hidden" name="cmd" value="count">
-                        <button type="submit" class="btn btn-primary">Count</button>
-                    </form>
-                </div>
-                <div class="container"></div>
-            </div>
-
-            <div class="panel panel-default">
-                <div class="panel-heading">Search items in index</div>
-                <div class="panel-body">
-                    <form id="search" method="POST">
-                        <input type="text" hidden="hidden" name="cmd" value="search">
-                        <div class="form-group">
-                            <label for="inputQuery" class="sr-only">Query</label>
-                            <input type="text" name="q" value="" id="inputQuery" class="form-control" placeholder="What we whill search in books?" required>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Count items in index</div>
+                        <div class="panel-body">
+                            <form id="count" method="POST">
+                                <input type="text" hidden="hidden" name="cmd" value="count">
+                                <button type="submit" class="btn btn-primary">Count</button>
+                            </form>
                         </div>
-                        <button type="submit" class="btn btn-primary">Search</button>
-                    </form>
+                        <div class="container"></div>
+                    </div>
                 </div>
-                <div class="container"></div>
-            </div>
-
-            <div class="panel panel-default">
-                <div class="panel-heading">Search items in index</div>
-                <div class="panel-body">
-                    <form id="search_advanced" method="POST">
-                        <input type="text" hidden="hidden" name="cmd" value="search_advanced">
-                        <div class="form-group">
-                            <label for="inputQ" class="sr-only">Query Builder</label>
-                            <!--<input type="text" name="q" value="" id="inputQ" class="form-control" placeholder="What we whill search in books?" required>-->
-                            <textarea name="q" id="inputQ" class="form-control" rows="3" placeholder="{query: {match_all: {}}" required></textarea>
+                <div role="tabpanel" class="tab-pane" id="indexs">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Create index</div>
+                        <div class="panel-body">
+                            <form id="create" method="POST">
+                                <input type="text" hidden="hidden" name="cmd" value="create">
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </form>
                         </div>
-                        <button type="submit" class="btn btn-primary">Search</button>
-                    </form>
-                </div>
-                <div class="container"></div>
-            </div>
+                        <div class="container"></div>
+                    </div>
 
-            <div class="panel panel-danger">
-                <div class="panel-heading">Delete index</div>
-                <div class="panel-body">
-                    <form id="delete" method="POST">
-                        <input type="text" hidden="hidden" name="cmd" value="delete">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">Delete index</div>
+                        <div class="panel-body">
+                            <form id="delete" method="POST">
+                                <input type="text" hidden="hidden" name="cmd" value="delete">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                        <div class="container"></div>
+                    </div>
                 </div>
-                <div class="container"></div>
+                <div role="tabpanel" class="tab-pane" id="searchs">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Search items in index</div>
+                        <div class="panel-body">
+                            <form id="search" method="POST">
+                                <input type="text" hidden="hidden" name="cmd" value="search">
+                                <div class="form-group">
+                                    <label for="inputQuery" class="sr-only">Query</label>
+                                    <input type="text" name="q" value="" id="inputQuery" class="form-control" placeholder="What we whill search in books?" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </form>
+                        </div>
+                        <div class="container"></div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Search items in index</div>
+                        <div class="panel-body">
+                            <form id="search_advanced" method="POST">
+                                <input type="text" hidden="hidden" name="cmd" value="search_advanced">
+                                <div class="form-group">
+                                    <label for="inputQ" class="sr-only">Query Builder</label>
+                                    <!--<input type="text" name="q" value="" id="inputQ" class="form-control" placeholder="What we whill search in books?" required>-->
+                                    <textarea name="q" id="inputQ" class="form-control" rows="3" placeholder="{query: {match_all: {}}" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </form>
+                        </div>
+                        <div class="container"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div> <!-- /container -->

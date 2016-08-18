@@ -13,14 +13,16 @@ $(document).ready(function(){
 
         // Create a formdata object and add the files
         var data = new FormData();
-        $.each(files, function(key, value) {
-            data.append('book', value);
-        });
 
         var cmd = $(this).find('input[hidden=hidden]').val()
         data.append('cmd', cmd);
 
-        if (cmd === 'search') {
+        if (cmd === 'add') {
+            $.each(files, function(key, value) {
+                data.append('book', value);
+            });
+            var add_form = $(this)
+        } else if (cmd === 'search') {
             var q = $(this).find('#inputQuery').val();
             data.append('q', q);
         } else if (cmd === 'search_advanced') {
@@ -49,6 +51,10 @@ $(document).ready(function(){
                         msg.append("<p>" + JSON.stringify(data) + "</p>");
 
                         response_div.html(msg).fadeIn();
+
+                        if (cmd === 'add') {
+                            add_form[0].reset();
+                        }
                     } else {
                         // Handle errors here
                         console.log('ERRORS: ' + JSON.stringify(data));
