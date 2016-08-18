@@ -21,6 +21,7 @@ $(document).ready(function(){
             $.each(files, function(key, value) {
                 data.append('book', value);
             });
+            var add_form = $(this)
         } else if (cmd === 'search') {
             var q = $(this).find('#inputQuery').val();
             data.append('q', q);
@@ -52,7 +53,7 @@ $(document).ready(function(){
                         response_div.html(msg).fadeIn();
 
                         if (cmd === 'add') {
-                            $(this)[0].reset();
+                            add_form.reset();
                         }
                     } else {
                         // Handle errors here
