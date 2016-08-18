@@ -53,7 +53,7 @@ $(document).ready(function(){
                         response_div.html(msg).fadeIn();
 
                         if (cmd === 'add') {
-                            add_form.reset();
+                            add_form[0].reset();
                         }
                     } else {
                         // Handle errors here
